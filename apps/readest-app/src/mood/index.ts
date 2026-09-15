@@ -1,5 +1,6 @@
 // Mood entry point: a background queue that analyses every EPUB/PDF in the library, one at a time.
-// Loaded by the mood UI components (library covers, reader toast). Never blocks the reader.
+// Imported once from components/Providers.tsx. UI components only read the store, so Readest's
+// tests that mock stores can still render them. Never blocks the reader.
 import { DocumentLoader } from '@/libs/document';
 import environmentConfig, { isTauriAppPlatform } from '@/services/environment';
 import { useBookDataStore } from '@/store/bookDataStore';
@@ -60,21 +61,24 @@ const enqueueLibrary = (library: Book[]) => {
   }
   void run();
 };
-enqueueLibrary(useLibraryStore.getState().library);
-useLibraryStore.subscribe(({ library }, prev) => {
-  if (library !== prev.library) enqueueLibrary(library);
-});
+// Browser only: Providers also renders on the server, where there is no library or window.
+if (typeof window !== 'undefined') {
+  enqueueLibrary(useLibraryStore.getState().library);
+  useLibraryStore.subscribe(({ library }, prev) => {
+    if (library !== prev.library) enqueueLibrary(library);
+  });
 
-// A book opened in the reader jumps the queue.
-useBookDataStore.subscribe(({ booksData }) => {
-  for (const id of Object.keys(booksData)) {
-    const at = pending.indexOf(id);
-    if (at > 0) pending.unshift(...pending.splice(at, 1));
+  // A book opened in the reader jumps the queue.
+  useBookDataStore.subscribe(({ booksData }) => {
+    for (const id of Object.keys(booksData)) {
+      const at = pending.indexOf(id);
+      if (at > 0) pending.unshift(...pending.splice(at, 1));
+    }
+  });
+
+  if (isTauriAppPlatform()) {
+    registerLibraryCloseGuard().catch((err) =>
+      console.warn('[mood] close guard not registered', err),
+    );
   }
-});
-
-if (isTauriAppPlatform()) {
-  registerLibraryCloseGuard().catch((err) =>
-    console.warn('[mood] close guard not registered', err),
-  );
 }

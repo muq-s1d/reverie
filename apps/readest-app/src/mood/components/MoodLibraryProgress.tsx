@@ -1,7 +1,6 @@
 // Library book item: thin bar on the cover + "♪ Mood 42%" while a book is being analysed.
 import { MdMusicNote } from 'react-icons/md';
 import { useTranslation } from '@/hooks/useTranslation';
-import '../index'; // starts the background analysis queue
 import { useMoodStore } from '../store';
 
 const useAnalysingPercent = (hash: string) =>

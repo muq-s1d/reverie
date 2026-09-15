@@ -3,7 +3,6 @@
 import clsx from 'clsx';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSidebarStore } from '@/store/sidebarStore';
-import '../index'; // starts the background analysis queue
 import { useMoodStore } from '../store';
 
 const useAnalysingPercent = (bookKey: string) =>
