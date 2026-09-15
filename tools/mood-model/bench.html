@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>mood model bench</title>
+<script type="module">
+  import { env, pipeline } from '/node_modules/@huggingface/transformers/dist/transformers.min.js';
+
+  const params = new URLSearchParams(location.search);
+  const N = 60; // enough chunks for a stable ms/chunk
+
+  env.localModelPath = '/out/';
+  env.allowLocalModels = true; // off by default in browsers
+  env.allowRemoteModels = false;
+  env.backends.onnx.wasm.wasmPaths = '/node_modules/onnxruntime-web/dist/'; // same ORT build transformers.js imports
+
+  console.log('isolated', crossOriginIsolated, 'cores', navigator.hardwareConcurrency);
+  const chunks = (await (await fetch('/out/sample_chunks.json')).json()).slice(100, 100 + N);
+  const t0 = performance.now();
+  const classify = await pipeline('text-classification', params.get('model'), {
+    dtype: params.get('dtype'),
+    device: 'wasm',
+  });
+  const loadMs = performance.now() - t0;
+  console.log('model loaded', Math.round(loadMs), 'ms');
+  await classify(chunks[0]); // warm-up
+
+  const t1 = performance.now();
+  for (const [i, c] of chunks.entries()) {
+    await classify(c, { top_k: null });
+    if (i % 10 === 9) console.log(i + 1, 'chunks', Math.round((performance.now() - t1) / (i + 1)), 'ms/chunk');
+  }
+  window.benchResult = {
+    isolated: crossOriginIsolated,
+    threads: env.backends.onnx.wasm.numThreads,
+    loadS: +(loadMs / 1000).toFixed(1),
+    msPerChunk: Math.round((performance.now() - t1) / N),
+  };
+</script>
