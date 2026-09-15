@@ -21,6 +21,7 @@ import BookCard from './BookCard';
 import useSidebar from '../../hooks/useSidebar';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
+import { MoodSidebarStatus } from '@/mood/components/MoodReaderStatus';
 
 const MIN_SIDEBAR_WIDTH = 0.05;
 const MAX_SIDEBAR_WIDTH = 0.45;
@@ -270,6 +271,7 @@ const SideBar = ({}) => {
           </div>
           <div className='border-base-300/50 border-b px-3'>
             <BookCard book={book} />
+            <MoodSidebarStatus bookKey={sideBarBookKey!} />
           </div>
         </div>
         {isSearchBarVisible && !isAnnotationsTab && searchResults ? (

@@ -33,6 +33,7 @@ import NotebookToggler from './NotebookToggler';
 import TranslationToggler from './TranslationToggler';
 import ViewMenu from './ViewMenu';
 import SyncInfoDialog from './SyncInfoDialog';
+import { MoodHeaderIcon } from '@/mood/components/MoodReaderStatus';
 
 interface HeaderBarProps {
   bookKey: string;
@@ -263,6 +264,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
             </button>
             <BookmarkToggler bookKey={bookKey} />
             <TranslationToggler bookKey={bookKey} />
+            <MoodHeaderIcon bookKey={bookKey} size={iconSize18} />
           </div>
           {enableAnnotationQuickActions && (
             <Dropdown

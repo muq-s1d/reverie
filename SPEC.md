@@ -36,9 +36,9 @@ Neutral · Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disg
 - [x] Decide: bundle model in installer vs download once on first use → bundle fp16 (218 MB)
 
 ### Phase 3 — Local Mood Pipeline
-- [ ] Port chunker, 28→15 emotion map, Neutral threshold (0.70), smoothing (window 3) to TypeScript
-- [ ] Background analysis job with progress, EPUB/PDF only
-- [ ] Cache mood timeline per book; skip re-analysis on reopen
+- [x] Reuse Readest's CfiChunker; port 28→15 emotion map, Neutral threshold (0.70), smoothing (window 3) to TypeScript
+- [x] Background analysis job with progress, EPUB/PDF only
+- [x] Cache mood timeline per book; skip re-analysis on reopen
 
 ### Phase 4 — Reader Integration
 - [ ] Current position → chunk → smoothed mood
