@@ -15,7 +15,6 @@ import { checkForAppUpdates, checkAppReleaseNotes } from '@/helpers/updater';
 import { tauriHandleSetAlwaysOnTop } from '@/utils/window';
 import ClipSignInAlert from '@/components/ClipSignInAlert';
 import Reader from './components/Reader';
-import { MoodToast } from '@/mood/components/MoodToast';
 
 // This is only used for the Tauri app in the app router
 export default function Page() {
@@ -50,7 +49,6 @@ export default function Page() {
     <>
       <Reader />
       <ClipSignInAlert />
-      <MoodToast />
     </>
   );
 }

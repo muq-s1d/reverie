@@ -1,11 +1,12 @@
 // Mood entry point: a background queue that analyses every EPUB/PDF in the library, one at a time.
 // Loaded by the mood UI components (library covers, reader toast). Never blocks the reader.
 import { DocumentLoader } from '@/libs/document';
-import environmentConfig from '@/services/environment';
+import environmentConfig, { isTauriAppPlatform } from '@/services/environment';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useLibraryStore } from '@/store/libraryStore';
 import type { Book } from '@/types/book';
 import { analyzeBook, loadCachedTimeline, timelineState } from './analyze';
+import { registerLibraryCloseGuard } from './closeGuard';
 import { setMoodState, useMoodStore } from './store';
 
 const pending: string[] = []; // book hashes, next first
@@ -71,3 +72,9 @@ useBookDataStore.subscribe(({ booksData }) => {
     if (at > 0) pending.unshift(...pending.splice(at, 1));
   }
 });
+
+if (isTauriAppPlatform()) {
+  registerLibraryCloseGuard().catch((err) =>
+    console.warn('[mood] close guard not registered', err),
+  );
+}
