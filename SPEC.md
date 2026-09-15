@@ -30,10 +30,10 @@ Neutral · Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disg
 - [ ] Verify by eye on one EPUB and one PDF that the chunk matches what's on screen
 
 ### Phase 2 — Spike B: On-Device Model
-- [ ] Convert model to ONNX (HF `optimum`), try full + int8-quantized versions
-- [ ] Run it on the test book, compare against Python results (Neutral % ≈ 41.8%, label agreement)
-- [ ] Measure speed + memory on CPU; pick runtime (transformers.js in a worker vs `ort` in Rust)
-- [ ] Decide: bundle model in installer vs download once on first use
+- [x] Convert model to ONNX (HF `optimum`), try full + int8-quantized versions
+- [x] Run it on the test book, compare against Python results (Neutral % ≈ 41.8%, label agreement)
+- [x] Measure speed + memory on CPU; pick runtime (transformers.js in a worker vs `ort` in Rust)
+- [x] Decide: bundle model in installer vs download once on first use → bundle fp16 (218 MB)
 
 ### Phase 3 — Local Mood Pipeline
 - [ ] Port chunker, 28→15 emotion map, Neutral threshold (0.70), smoothing (window 3) to TypeScript
