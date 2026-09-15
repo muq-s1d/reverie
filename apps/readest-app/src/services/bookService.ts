@@ -499,6 +499,7 @@ export async function importBook(
   try {
     let format: BookFormat;
     let filename: string;
+    let convertedFromTxt = false; // Reverie
     // When the Rust EPUB parser succeeds it gives us the partialMD5 for free,
     // so we can short-circuit the JS hashing pass below.
     let nativeHash: string | undefined;
@@ -532,6 +533,7 @@ export async function importBook(
           const txt2epub = new TxtToEpubConverter();
           try {
             ({ file: fileobj } = await txt2epub.convert({ file: fileobj }));
+            convertedFromTxt = true;
           } finally {
             // Convert consumes the source; release RemoteFile/NativeFile
             // immediately so DocumentLoader / cover / write do not keep the
@@ -682,6 +684,7 @@ export async function importBook(
       // property of the file, so it is re-derived on every (re)import rather
       // than synced as user data.
       hasNarration: hasMediaOverlays(loadedBook) || undefined,
+      convertedFromTxt: convertedFromTxt || undefined,
       metadata: loadedBook.metadata,
       createdAt: existingBook ? existingBook.createdAt : Date.now(),
       uploadedAt: existingBook ? existingBook.uploadedAt : null,

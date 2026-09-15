@@ -13,8 +13,14 @@ import { setMoodState, useMoodStore } from './store';
 const pending: string[] = []; // book hashes, next first
 let running = false;
 
+// Only local EPUB/PDF files. Everything else never opens a doc or loads the model.
+// `url` marks feeds, OPDS streams and remote books: stored as EPUB, but analysing them would
+// download/stream content. `convertedFromTxt`: Readest turns .txt imports into EPUBs.
 const isMoodBook = (book: Book) =>
-  !book.deletedAt && (book.format === 'EPUB' || book.format === 'PDF');
+  !book.deletedAt &&
+  !book.url &&
+  !book.convertedFromTxt &&
+  (book.format === 'EPUB' || book.format === 'PDF');
 
 const analyzeNext = async (hash: string) => {
   const book = useLibraryStore.getState().library.find((b) => b.hash === hash);
