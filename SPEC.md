@@ -18,10 +18,10 @@ Neutral · Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disg
 ## Phase Checklist
 
 ### Phase 0 — Fork + Build
-- [ ] Fork readest/readest on GitHub, clone with submodules
-- [ ] Get `tauri dev` running on Linux, untouched
-- [ ] Find how Readest stores per-book data locally (where to cache mood results)
-- [ ] Find where foliate-js reports reading position (`relocate` event) in Readest
+- [x] Own repo muq-s1d/reverie from readest/readest (not a GitHub fork), with submodules
+- [x] Get `tauri dev` running on Linux, untouched
+- [x] Find how Readest stores per-book data locally (where to cache mood results)
+- [x] Find where foliate-js reports reading position (`relocate` event) in Readest
 
 ### Phase 1 — Spike A: Position Matching
 - [ ] Extract text per section from foliate-js's parsed book (EPUB chapter / PDF page)
