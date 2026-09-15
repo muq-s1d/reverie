@@ -33,7 +33,7 @@ import NotebookToggler from './NotebookToggler';
 import TranslationToggler from './TranslationToggler';
 import ViewMenu from './ViewMenu';
 import SyncInfoDialog from './SyncInfoDialog';
-import { MoodHeaderIcon } from '@/mood/components/MoodReaderStatus';
+import { MoodHeaderIcon, MoodTopLine } from '@/mood/components/MoodReaderStatus';
 
 interface HeaderBarProps {
   bookKey: string;
@@ -210,6 +210,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
           height: systemUIVisible ? `${Math.max(insets.top, statusBarHeight)}px` : '0px',
         }}
       />
+      <MoodTopLine bookKey={bookKey} />
       <div
         ref={headerRef}
         role='banner'

@@ -41,9 +41,9 @@ Neutral · Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disg
 - [x] Cache mood timeline per book; skip re-analysis on reopen
 
 ### Phase 4 — Reader Integration
-- [ ] Current position → chunk → smoothed mood
-- [ ] Mood indicator in the reader UI
-- [ ] Mood UI hidden for non-EPUB/PDF formats
+- [x] Current position → chunk → smoothed mood
+- [x] Mood indicator in the reader UI
+- [x] Mood UI hidden for non-EPUB/PDF formats
 
 ### Phase 5 — Music Engine
 - [ ] Port `useMoodPlayer` (dual Howl crossfade, prefetch, fade-leak fix)

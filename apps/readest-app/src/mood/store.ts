@@ -18,7 +18,7 @@ export interface MoodTimeline {
 export type MoodBookState =
   | { status: 'queued' }
   | { status: 'analysing'; done: number; total: number }
-  | { status: 'ready'; timeline: MoodTimeline }
+  | { status: 'ready'; timeline: MoodTimeline; format: 'EPUB' | 'PDF' }
   // No text layer (e.g. scanned PDF): mood unavailable, the book still reads normally.
   | { status: 'unavailable' }
   | { status: 'error'; message: string };

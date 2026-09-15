@@ -19,6 +19,25 @@ export const MOODS = [
 ] as const;
 export type Mood = (typeof MOODS)[number];
 
+// betterReading frontend/app/globals.css --mood-* colours.
+export const MOOD_COLORS: Record<Mood, string> = {
+  Joy: '#f5c842',
+  Excitement: '#f97316',
+  Anticipation: '#eab308',
+  'Wonder/Awe': '#8b5cf6',
+  Mystery: '#6366f1',
+  Romance: '#c2677d',
+  Tenderness: '#ec4899',
+  'Peace/Calm': '#10b981',
+  Neutral: '#6e7a8a',
+  Sadness: '#5b7fa6',
+  'Grief/Despair': '#475569',
+  Fear: '#7b5ea7',
+  'Tension/Suspense': '#64748b',
+  Anger: '#c0392b',
+  Disgust: '#84cc16',
+};
+
 // 28 GoEmotions labels → 15 moods.
 const EMOTION_MAP: Record<string, Mood> = {
   joy: 'Joy',
