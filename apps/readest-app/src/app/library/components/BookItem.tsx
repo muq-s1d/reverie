@@ -24,6 +24,7 @@ import { formatAuthors, formatDescription, formatSeries } from '@/utils/book';
 import { formatCompactTime } from '@/utils/time';
 import { INDETERMINATE_PROGRESS } from '@/utils/transfer';
 import ReadingProgress from './ReadingProgress';
+import { MoodCoverBar, MoodLabel } from '@/mood/components/MoodLibraryProgress';
 import BookCover from '@/components/BookCover';
 
 interface BookItemProps {
@@ -131,6 +132,7 @@ const BookItem: React.FC<BookItemProps> = ({
           )}
           onAspectRatioChange={setCoverAspect}
         />
+        <MoodCoverBar hash={book.hash} />
         {isTransferring && (
           // E-ink cannot render a translucent wash — it dithers over the cover
           // art — and has no shadows, so the scrim becomes a solid base-100
@@ -221,6 +223,7 @@ const BookItem: React.FC<BookItemProps> = ({
             )
           )}
           <div className='flex shrink-0 items-center justify-center gap-x-2'>
+            <MoodLabel hash={book.hash} />
             {!appService?.isMobile && (
               <button
                 aria-label={_('Show Book Details')}
