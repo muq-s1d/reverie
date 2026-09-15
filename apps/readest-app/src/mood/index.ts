@@ -27,7 +27,7 @@ const analyzeNext = async (hash: string) => {
   if (!book) return;
 
   const cached = await loadCachedTimeline(book);
-  if (cached) return setMoodState(hash, timelineState(cached));
+  if (cached) return setMoodState(hash, timelineState(book, cached));
 
   // Reuse the reader's parsed book if it's open; otherwise open it just for analysis.
   const openDoc = useBookDataStore.getState().getBookData(hash)?.bookDoc;

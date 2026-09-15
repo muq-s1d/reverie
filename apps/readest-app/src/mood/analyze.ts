@@ -34,8 +34,10 @@ interface MoodPartial {
 }
 
 /** State for a finished timeline. No chunks = no text layer (e.g. scanned PDF). */
-export const timelineState = (timeline: MoodTimeline): MoodBookState =>
-  timeline.chunks.length ? { status: 'ready', timeline } : { status: 'unavailable' };
+export const timelineState = (book: Book, timeline: MoodTimeline): MoodBookState =>
+  timeline.chunks.length && (book.format === 'EPUB' || book.format === 'PDF')
+    ? { status: 'ready', timeline, format: book.format }
+    : { status: 'unavailable' };
 
 export const loadCachedTimeline = async (book: Book): Promise<MoodTimeline | null> => {
   const timeline = await readJSON<MoodTimeline>(timelinePath(book));
@@ -118,5 +120,5 @@ export const analyzeBook = async (book: Book, bookDoc: BookDoc) => {
 
   await appService.writeFile(timelinePath(book), 'Books', JSON.stringify(timeline));
   await appService.deleteFile(partialPath(book), 'Books').catch(() => {}); // may not exist
-  setMoodState(book.hash, timelineState(timeline));
+  setMoodState(book.hash, timelineState(book, timeline));
 };
