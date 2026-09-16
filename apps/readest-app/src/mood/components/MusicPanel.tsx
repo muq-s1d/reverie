@@ -13,7 +13,7 @@ import SubPageHeader from '@/components/settings/SubPageHeader';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { isTauriAppPlatform } from '@/services/environment';
-import { MOOD_COLORS, MOODS, type Mood } from '../moods';
+import { MOODS, type Mood } from '../moods';
 import {
   builtInTracks,
   DEFAULT_MUSIC_SETTINGS,
@@ -24,16 +24,7 @@ import {
 } from '../music';
 import { AUDIO_EXTENSIONS, saveMusicSettings, useMusicSettings } from '../musicSettings';
 import { stopPreview, togglePreview, usePreviewStore } from '../preview';
-
-const moodDot = (mood: Mood) =>
-  function MoodDotIcon() {
-    return (
-      <span
-        className='eink:border eink:border-base-content inline-block h-2.5 w-2.5 rounded-full'
-        style={{ backgroundColor: MOOD_COLORS[mood] }}
-      />
-    );
-  };
+import { MoodIconStyles, moodIcon } from './MoodIcon';
 
 const MusicPanel: React.FC<SettingsPanelPanelProp> = ({ onRegisterReset }) => {
   const _ = useTranslation();
@@ -55,6 +46,7 @@ const MusicPanel: React.FC<SettingsPanelPanelProp> = ({ onRegisterReset }) => {
 
   return (
     <div className='my-4 w-full space-y-6'>
+      <MoodIconStyles />
       <BoxedList title={_('Mood Music')} data-setting-id='settings.music.main'>
         <SettingsSwitchRow
           label={_('Play mood music')}
@@ -108,7 +100,7 @@ const MusicPanel: React.FC<SettingsPanelPanelProp> = ({ onRegisterReset }) => {
           return (
             <NavigationRow
               key={mood}
-              icon={moodDot(mood)}
+              icon={moodIcon(mood)}
               title={_(mood)}
               status={status}
               onClick={() => setOpenMood(mood)}
