@@ -6,7 +6,7 @@ import { LiaHandPointerSolid } from 'react-icons/lia';
 import { IoAccessibilityOutline } from 'react-icons/io5';
 import { PiRobot, PiSpeakerHigh, PiSun, PiMoon } from 'react-icons/pi';
 import { TbSunMoon } from 'react-icons/tb';
-import { MdMusicNote, MdRefresh } from 'react-icons/md';
+import { MdRefresh } from 'react-icons/md';
 import { IconType } from 'react-icons';
 import { stubTranslation as _ } from '@/utils/misc';
 
@@ -152,7 +152,7 @@ const panelIcons: Record<SettingsPanelType, IconType> = {
   Theme: VscSymbolColor,
   Control: LiaHandPointerSolid,
   TTS: PiSpeakerHigh,
-  Music: MdMusicNote,
+  Music: PiSpeakerHigh, // reuses an existing import (icon modules are strictly mocked in tests)
   Language: RiTranslate,
   AI: PiRobot,
   Integrations: RiShareLine,
