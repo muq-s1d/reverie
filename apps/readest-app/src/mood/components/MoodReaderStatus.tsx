@@ -1,5 +1,6 @@
 // Reader mood UI. While analysing: animated icon in the header + progress row in the sidebar.
-// Once ready: a 2px mood-coloured line at the top, a mood chip in the header, a mood row in the sidebar.
+// Once ready: a 2px mood-coloured line at the top (+ mood music), a mood chip in the header, a mood row
+// in the sidebar.
 // Nothing here covers the book text.
 import clsx from 'clsx';
 import { useMemo } from 'react';
@@ -7,8 +8,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useBookProgress } from '@/store/readerProgressStore';
 import { useSidebarStore } from '@/store/sidebarStore';
 import { MOOD_COLORS, type Mood } from '../moods';
+import { DEFAULT_MUSIC_SETTINGS } from '../music';
 import { findChunkIndex } from '../position';
 import { useMoodStore } from '../store';
+import { useMoodPlayer } from '../useMoodPlayer';
 
 const hashOf = (bookKey: string) => bookKey.split('-')[0]!;
 
@@ -63,9 +66,13 @@ const MoodDot = ({ mood }: { mood: Mood }) => (
   />
 );
 
-/** Always-visible 2px line in the current mood's colour. Sits above the header, never over text. */
+/**
+ * Always-visible 2px line in the current mood's colour (sits above the header, never over text),
+ * and the mood music player. One per book view; the player makes sure only one plays.
+ */
 export const MoodTopLine = ({ bookKey }: { bookKey: string }) => {
   const mood = useCurrentMood(bookKey);
+  useMoodPlayer(mood, DEFAULT_MUSIC_SETTINGS);
   if (!mood) return null;
   return (
     <div
