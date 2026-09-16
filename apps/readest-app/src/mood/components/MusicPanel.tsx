@@ -20,7 +20,7 @@ import {
   isBuiltInTrack,
   type MusicSettings,
   moodTracks,
-  trackName,
+  trackInfo,
 } from '../music';
 import { AUDIO_EXTENSIONS, saveMusicSettings, useMusicSettings } from '../musicSettings';
 import { stopPreview, togglePreview, usePreviewStore } from '../preview';
@@ -157,37 +157,49 @@ const MoodTracksPage = ({ mood, onBack }: { mood: Mood; onBack: () => void }) =>
     });
   };
 
-  const row = (id: string, label: string) => (
-    <SettingsRow
-      key={id}
-      asLabel={false}
-      label={
-        <span className='flex min-w-0 items-center gap-2'>
-          <button
-            className='btn btn-ghost btn-circle btn-sm eink-bordered shrink-0'
-            aria-label={playing === id ? _('Stop preview') : _('Preview {{name}}', { name: label })}
-            onClick={() => togglePreview(id)}
-          >
-            {playing === id ? <MdStop size={18} /> : <MdPlayArrow size={18} />}
-          </button>
-          <span className='truncate'>{label}</span>
-        </span>
-      }
-    >
-      <div className='flex items-center gap-2'>
-        {!isBuiltInTrack(id) && (
-          <button className='btn btn-ghost btn-sm' onClick={() => remove(id)}>
-            {_('Remove')}
-          </button>
-        )}
-        <Toggle
-          checked={!disabledTracks.includes(id)}
-          aria-label={_('Play {{name}}', { name: label })}
-          onChange={(e) => setOn(id, e.target.checked)}
-        />
-      </div>
-    </SettingsRow>
-  );
+  const row = (id: string) => {
+    const { title: label, artist } = trackInfo(id);
+    return (
+      <SettingsRow
+        key={id}
+        asLabel={false}
+        label={
+          <span className='flex min-w-0 items-center gap-2'>
+            <button
+              className='btn btn-ghost btn-circle btn-sm eink-bordered shrink-0'
+              aria-label={
+                playing === id ? _('Stop preview') : _('Preview {{name}}', { name: label })
+              }
+              onClick={() => togglePreview(id)}
+            >
+              {playing === id ? <MdStop size={18} /> : <MdPlayArrow size={18} />}
+            </button>
+            <span className='min-w-0'>
+              <span className='block truncate'>{label}</span>
+              {artist && (
+                <span className='text-base-content/60 block truncate text-xs'>
+                  {artist} · CC-BY 4.0
+                </span>
+              )}
+            </span>
+          </span>
+        }
+      >
+        <div className='flex items-center gap-2'>
+          {!isBuiltInTrack(id) && (
+            <button className='btn btn-ghost btn-sm' onClick={() => remove(id)}>
+              {_('Remove')}
+            </button>
+          )}
+          <Toggle
+            checked={!disabledTracks.includes(id)}
+            aria-label={_('Play {{name}}', { name: label })}
+            onChange={(e) => setOn(id, e.target.checked)}
+          />
+        </div>
+      </SettingsRow>
+    );
+  };
 
   return (
     <div className='my-4 w-full space-y-6'>
@@ -202,9 +214,7 @@ const MoodTracksPage = ({ mood, onBack }: { mood: Mood; onBack: () => void }) =>
           onBack();
         }}
       />
-      <BoxedList title={_('Built-in tracks')}>
-        {builtInTracks(mood).map((id, i) => row(id, _('Track {{n}}', { n: i + 1 })))}
-      </BoxedList>
+      <BoxedList title={_('Built-in tracks')}>{builtInTracks(mood).map((id) => row(id))}</BoxedList>
       {isTauriAppPlatform() && (
         <BoxedList
           title={_('Your songs')}
@@ -212,7 +222,7 @@ const MoodTracksPage = ({ mood, onBack }: { mood: Mood; onBack: () => void }) =>
             'Removing a song only takes it out of Reverie. The file stays on your computer.',
           )}
         >
-          {yours.map((id) => row(id, trackName(id) ?? id))}
+          {yours.map((id) => row(id))}
           <SettingsRow label={_('Add your own songs to this mood')} asLabel={false}>
             <button className='btn btn-ghost btn-sm eink-bordered' onClick={addSongs}>
               {_('Add songs…')}

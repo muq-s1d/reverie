@@ -1,4 +1,5 @@
 // Track lists and playback helpers, ported from betterReading frontend/lib/music.ts.
+import { BUILT_IN_MUSIC } from './builtInMusic';
 import type { Mood } from './moods';
 
 export interface MusicSettings {
@@ -43,16 +44,23 @@ const slug: Record<Mood, string> = {
 
 // A track id is either a built-in path served from public/music/, or a user's absolute file path.
 export const isBuiltInTrack = (id: string) => id.startsWith('/music/');
-/** Display name: "Track 2" for built-ins (titles come with the CC pack), file name for user songs. */
-export const trackName = (id: string) =>
-  isBuiltInTrack(id) ? null : (id.split(/[\\/]/).pop() ?? id).replace(/\.[^.]+$/, '');
+const builtInId = (mood: Mood, file: string) => `/music/${slug[mood]}/${file}`;
 
-/** Packaged tracks: public/music/<mood>/track-N.mp3. Neutral has 5, the rest 3. Can't be removed. */
+/** Packaged tracks for the mood (public/music/<mood>/). Can't be removed, only switched off. */
 export const builtInTracks = (mood: Mood): string[] =>
-  Array.from(
-    { length: mood === 'Neutral' ? 5 : 3 },
-    (_, i) => `/music/${slug[mood]}/track-${i + 1}.mp3`,
-  );
+  BUILT_IN_MUSIC[mood].map((t) => builtInId(mood, t.file));
+
+/** Title and artist: from the pack for built-ins, the file name for the user's songs. */
+export const trackInfo = (id: string): { title: string; artist?: string } => {
+  for (const [mood, tracks] of Object.entries(BUILT_IN_MUSIC) as [
+    Mood,
+    typeof BUILT_IN_MUSIC.Joy,
+  ][]) {
+    const track = tracks.find((t) => builtInId(mood, t.file) === id);
+    if (track) return { title: track.title, artist: track.artist };
+  }
+  return { title: (id.split(/[\\/]/).pop() ?? id).replace(/\.[^.]+$/, '') };
+};
 
 /** Every track for the mood, switched on or off: built-in first, then the user's songs. */
 export const moodTracks = (mood: Mood, settings: MusicSettings): string[] => [

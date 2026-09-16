@@ -47,7 +47,7 @@ Neutral · Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disg
 
 ### Phase 5 — Music Engine
 - [x] Port `useMoodPlayer` (dual Howl crossfade, prefetch, fade-leak fix)
-- [ ] Ship default CC0/CC-BY mood tracks (see notes/plan.md sources); credit each
+- [x] Ship default CC-BY mood tracks (60: Scott Buckley + Kevin MacLeod, 4 per mood); credit each
 - [x] Your own songs per mood + per-track on/off, preview, remove (replaces "custom folder per mood")
 - [x] Music settings (on/off, volume, mute) in Readest's settings UI
 - [x] First-run guided tour of the mood feature (tooltips on line, chip, music opt-in)
