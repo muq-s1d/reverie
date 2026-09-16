@@ -6,6 +6,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppRouter } from '@/hooks/useAppRouter';
+import { isOfflineBuild } from '@/reverie/offline';
 import { navigateToLogin } from '@/utils/nav';
 
 interface LibraryEmptyStateProps {
@@ -42,7 +43,7 @@ const LibraryEmptyState: React.FC<LibraryEmptyStateProps> = ({ onImport }) => {
           </button>
           {/* TODO: add a 'Browse free catalogs' secondary action that opens the
               OPDS dialog (handleShowOPDSDialog) once we settle on placement. */}
-          {!user && (
+          {!user && !isOfflineBuild() && (
             <button
               type='button'
               className={clsx(

@@ -40,6 +40,10 @@ import { nextThemeMode } from '@/utils/ambientLight';
 import { saveViewSettings } from '@/helpers/settings';
 import { tauriHandleToggleFullScreen } from '@/utils/window';
 import MenuItem from '@/components/MenuItem';
+import { isOfflineBuild } from '@/reverie/offline';
+
+// Reverie: offline build has no sync, so the sync row renders nothing.
+const SyncMenuItem = isOfflineBuild() ? () => null : MenuItem;
 import Menu from '@/components/Menu';
 
 interface ViewMenuProps {
@@ -527,9 +531,12 @@ const ViewMenu: React.FC<ViewMenuProps> = ({
         disabled={bookData.isFixedLayout}
       />
 
-      <hr aria-hidden='true' className='border-base-300 my-1' />
+      <hr
+        aria-hidden='true'
+        className={`border-base-300 my-1 ${isOfflineBuild() ? 'hidden' : ''}`}
+      />
 
-      <MenuItem
+      <SyncMenuItem
         label={syncStatus.label}
         description={
           // Which provider the status belongs to. Only worth saying when a
@@ -603,9 +610,14 @@ const ViewMenu: React.FC<ViewMenuProps> = ({
         onClick={() => setInvertImgColorInDark(!invertImgColorInDark)}
       />
 
-      <hr aria-hidden='true' className='border-base-300 my-1' />
+      <hr
+        aria-hidden='true'
+        className={`border-base-300 my-1 ${isOfflineBuild() ? 'hidden' : ''}`}
+      />
 
-      <MenuItem label={_('Share Book')} Icon={IoShareOutline} onClick={handleShare} />
+      {!isOfflineBuild() && (
+        <MenuItem label={_('Share Book')} Icon={IoShareOutline} onClick={handleShare} />
+      )}
     </Menu>
   );
 };

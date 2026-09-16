@@ -13,6 +13,7 @@ import {
 import { md5Fingerprint } from '@/utils/md5';
 import { stubTranslation as _ } from '@/utils/misc';
 import { SIZE_PER_LOC, SIZE_PER_TIME_UNIT } from '@/services/constants';
+import { isOfflineBuild } from '@/reverie/offline';
 import { isFeedBook } from '@/services/rss/feedBookUrl';
 
 /** Valid sort types for the library */
@@ -1035,5 +1036,7 @@ export const getBookContextMenuItemIds = (
     if (opts?.localSend && (book.downloadedAt || book.filePath)) ids.push('sendNearby');
   }
   ids.push('delete');
-  return ids;
+  // Reverie: offline build has no cloud, sharing links or web lookups.
+  const online: BookContextMenuItemId[] = ['searchGoodreads', 'download', 'upload', 'share'];
+  return isOfflineBuild() ? ids.filter((id) => !online.includes(id)) : ids;
 };
