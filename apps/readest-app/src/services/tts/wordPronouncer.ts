@@ -8,6 +8,7 @@ import { TTSUtils } from './TTSUtils';
 import { NativeTTSClient } from './NativeTTSClient';
 import { WebSpeechClient } from './WebSpeechClient';
 import { WebAudioPlayer } from './WebAudioPlayer';
+import { isOfflineBuild } from '@/reverie/offline';
 import type { TTSAudioContext } from './WebAudioPlayer';
 
 // Speaks a single dictionary word as fast as possible. Unlike the reader's
@@ -90,6 +91,8 @@ export const cancelWordPronounce = (): void => {
 // On Tauri the native wss transport is the only Edge path — never retry via
 // the proxy (a cross-origin /api/tts/edge request, e.g. fired when offline).
 const fetchEdgeAudio = async (payload: EdgeTTSPayload): Promise<ArrayBuffer> => {
+  // Reverie: offline build goes straight to the system speech fallback.
+  if (isOfflineBuild()) throw new Error('Edge TTS is unavailable offline');
   try {
     return (await edgeWss.createAudioData(payload)).data;
   } catch (err) {

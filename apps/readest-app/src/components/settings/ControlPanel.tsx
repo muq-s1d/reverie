@@ -27,6 +27,7 @@ import AnnotationToolbarCustomizer from './AnnotationToolbarCustomizer';
 import { DEFAULT_ANNOTATION_TOOLBAR_ITEMS } from '@/utils/annotationToolbar';
 import { canShareText } from '@/utils/share';
 import { optInTelemetry, optOutTelemetry } from '@/utils/telemetry';
+import { isOfflineBuild } from '@/reverie/offline';
 import KeyboardShortcutsSettings from './KeyboardShortcutsSettings';
 
 const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }) => {
@@ -588,7 +589,11 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
         />
       </BoxedList>
 
-      <BoxedList title={_('Privacy')} data-setting-id='settings.control.telemetry'>
+      <BoxedList
+        title={_('Privacy')}
+        className={isOfflineBuild() ? 'hidden' : undefined} // Reverie: no analytics
+        data-setting-id='settings.control.telemetry'
+      >
         <SettingsSwitchRow
           label={_('Help improve Readest')}
           description={isTelemetryEnabled ? _('Sharing anonymized statistics') : ''}

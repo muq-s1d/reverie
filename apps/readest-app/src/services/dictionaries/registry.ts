@@ -31,6 +31,7 @@ import { createBglProvider } from './providers/bglProvider';
 import { createWebSearchProvider } from './providers/webSearchProvider';
 import { getBuiltinWebSearch } from './webSearchTemplates';
 import { createPluginDictionaryProvider } from './plugins/provider';
+import { isOfflineBuild } from '@/reverie/offline';
 import type { AppService } from '@/types/system';
 
 const instanceCache = new Map<string, DictionaryProvider>();
@@ -75,6 +76,8 @@ const getOrCreate = (
 ): DictionaryProvider | undefined => {
   const cached = instanceCache.get(id);
   if (cached) return cached;
+  // Reverie: Wiktionary, Wikipedia and web searches need the internet; imported dictionaries stay.
+  if (isOfflineBuild() && (builtinFor(id) || id.startsWith('web:'))) return undefined;
   const builtin = builtinFor(id);
   if (builtin) {
     instanceCache.set(id, builtin);

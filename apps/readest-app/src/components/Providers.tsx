@@ -42,6 +42,7 @@ import TelemetryConsentDialog from '@/components/TelemetryConsentDialog';
 import { upgradeToKeychainIfAvailable } from '@/libs/crypto/passphrase';
 import { cryptoSession } from '@/libs/crypto/session';
 import { useAppLockStore } from '@/store/appLockStore';
+import { isOfflineBuild } from '@/reverie/offline';
 import { initSettingsSync } from '@/services/sync/replicaSettingsSync';
 
 // One-time, on first launch after this feature ships, decide how to handle
@@ -88,7 +89,7 @@ const finalizeTelemetryDecision = ({
 
   // Brand-new user. Default to opt-out for privacy; ask only the prompt
   // bucket so the rest get a friction-free first launch.
-  if (rollIntoTelemetryPromptBucket()) {
+  if (!isOfflineBuild() && rollIntoTelemetryPromptBucket()) {
     setTelemetryDecision('pending');
     onShowPrompt();
   } else {

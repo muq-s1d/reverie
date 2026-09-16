@@ -859,12 +859,9 @@ export const buildCommandRegistry = (options: CommandRegistryOptions): CommandIt
     }),
   );
 
-  items.push(
-    createActionItem({
-      id: 'action.telemetry',
-      action: options.toggleTelemetry,
-    }),
-  );
+  if (!isOfflineBuild()) {
+    items.push(createActionItem({ id: 'action.telemetry', action: options.toggleTelemetry }));
+  }
 
   return items;
 };

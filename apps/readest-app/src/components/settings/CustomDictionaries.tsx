@@ -44,6 +44,7 @@ import {
   isValidUrlTemplate,
 } from '@/services/dictionaries/webSearchTemplates';
 import SubPageHeader from './SubPageHeader';
+import { isOfflineBuild } from '@/reverie/offline';
 import { BoxedList, SettingsRow, SettingsSelect, Tips } from './primitives';
 
 /** Dictionary popup font-size multipliers, surfaced as percentages (#4443). */
@@ -406,6 +407,9 @@ const CustomDictionaries: React.FC<CustomDictionariesProps> = ({ onBack }) => {
     const systemSupported = isSystemDictionarySupported();
     const systemAvailable = isSystemDictionaryAvailable();
     for (const id of settings.providerOrder) {
+      // Reverie: online dictionaries (Wiktionary, Wikipedia, web searches) are unavailable offline.
+      const online = [BUILTIN_PROVIDER_IDS.wiktionary, BUILTIN_PROVIDER_IDS.wikipedia] as string[];
+      if (isOfflineBuild() && (online.includes(id) || id.startsWith('web:'))) continue;
       if (id === BUILTIN_PROVIDER_IDS.systemDictionary) {
         // On platforms that don't expose a native dictionary surface
         // (web, Linux, Windows), hide the row entirely so the user
@@ -884,6 +888,7 @@ const CustomDictionaries: React.FC<CustomDictionariesProps> = ({ onBack }) => {
           type='button'
           onClick={openAddWebSearch}
           className={clsx(
+            isOfflineBuild() && 'hidden', // Reverie: web searches need the internet
             'eink-bordered group flex h-11 items-center justify-center gap-2.5',
             'border-base-200 bg-base-100 rounded-lg border px-4',
             'text-base-content text-sm font-medium',
