@@ -11,6 +11,7 @@ import { VscSymbolColor } from 'react-icons/vsc';
 import { PiDotsThreeVerticalBold, PiRobot, PiSpeakerHigh } from 'react-icons/pi';
 import { LiaHandPointerSolid } from 'react-icons/lia';
 import { IoAccessibilityOutline } from 'react-icons/io5';
+import { MdMusicNote } from 'react-icons/md';
 import {
   MdArrowBackIosNew,
   MdArrowForwardIos,
@@ -33,6 +34,7 @@ import LangPanel from './LangPanel';
 import MiscPanel from './MiscPanel';
 import AIPanel from './AIPanel';
 import TTSPanel from './TTSPanel';
+import MusicPanel from '@/mood/components/MusicPanel';
 
 export type SettingsPanelType =
   | 'Font'
@@ -40,6 +42,7 @@ export type SettingsPanelType =
   | 'Theme'
   | 'Control'
   | 'TTS'
+  | 'Music'
   | 'Language'
   | 'AI'
   | 'Integrations'
@@ -123,6 +126,11 @@ const SettingsDialog: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       label: _('TTS'),
     },
     {
+      tab: 'Music',
+      icon: MdMusicNote,
+      label: _('Music'),
+    },
+    {
       tab: 'Custom',
       icon: IoAccessibilityOutline,
       label: _('Custom'),
@@ -177,6 +185,7 @@ const SettingsDialog: React.FC<{ bookKey: string }> = ({ bookKey }) => {
     Theme: null,
     Control: null,
     TTS: null,
+    Music: null,
     Language: null,
     AI: null,
     Integrations: null,
@@ -211,6 +220,7 @@ const SettingsDialog: React.FC<{ bookKey: string }> = ({ bookKey }) => {
         theme: 'Theme',
         control: 'Control',
         tts: 'TTS',
+        music: 'Music',
         language: 'Language',
         ai: 'AI',
         integrations: 'Integrations',
@@ -465,6 +475,12 @@ const SettingsDialog: React.FC<{ bookKey: string }> = ({ bookKey }) => {
         )}
         {activePanel === 'TTS' && (
           <TTSPanel bookKey={bookKey} onRegisterReset={(fn) => registerResetFunction('TTS', fn)} />
+        )}
+        {activePanel === 'Music' && (
+          <MusicPanel
+            bookKey={bookKey}
+            onRegisterReset={(fn) => registerResetFunction('Music', fn)}
+          />
         )}
         {activePanel === 'Language' && (
           <LangPanel

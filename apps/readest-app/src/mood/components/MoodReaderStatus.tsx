@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useBookProgress } from '@/store/readerProgressStore';
 import { useSidebarStore } from '@/store/sidebarStore';
 import { MOOD_COLORS, type Mood } from '../moods';
-import { DEFAULT_MUSIC_SETTINGS } from '../music';
+import { useMusicSettings } from '../musicSettings';
 import { findChunkIndex } from '../position';
 import { useMoodStore } from '../store';
 import { useMoodPlayer } from '../useMoodPlayer';
@@ -72,7 +72,7 @@ const MoodDot = ({ mood }: { mood: Mood }) => (
  */
 export const MoodTopLine = ({ bookKey }: { bookKey: string }) => {
   const mood = useCurrentMood(bookKey);
-  useMoodPlayer(mood, DEFAULT_MUSIC_SETTINGS);
+  useMoodPlayer(mood, useMusicSettings());
   if (!mood) return null;
   return (
     <div

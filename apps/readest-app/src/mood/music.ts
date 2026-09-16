@@ -7,8 +7,8 @@ export interface MusicSettings {
   muted: boolean;
 }
 
-// ponytail: fixed until Phase 5 step 2 adds these to Readest's settings screen.
-export const DEFAULT_MUSIC_SETTINGS: MusicSettings = { enabled: true, volume: 0.5, muted: false };
+// Off until the user opts in (onboarding tour or Settings → Music): no surprise sound.
+export const DEFAULT_MUSIC_SETTINGS: MusicSettings = { enabled: false, volume: 0.5, muted: false };
 
 const slug: Record<Mood, string> = {
   Joy: 'joy',

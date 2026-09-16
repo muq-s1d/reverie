@@ -1,4 +1,5 @@
 import { CustomTheme } from '@/styles/themes';
+import type { MusicSettings } from '@/mood/music';
 import { CustomFont } from '@/styles/fonts';
 import { CustomTexture } from '@/styles/textures';
 import { HighlightColor, HighlightStyle, UserHighlightColor, ViewSettings } from './book';
@@ -393,6 +394,8 @@ export interface HardwarePageTurnerSettings {
 }
 
 export interface SystemSettings {
+  // Reverie: mood music (src/mood/musicSettings.ts). Optional: missing = defaults.
+  moodMusic?: MusicSettings;
   version: number;
   migrationVersion: number;
   localBooksDir: string;
