@@ -152,6 +152,7 @@ const panelIcons: Record<SettingsPanelType, IconType> = {
   Theme: VscSymbolColor,
   Control: LiaHandPointerSolid,
   TTS: PiSpeakerHigh,
+  Music: PiSpeakerHigh, // reuses an existing import (icon modules are strictly mocked in tests)
   Language: RiTranslate,
   AI: PiRobot,
   Integrations: RiShareLine,

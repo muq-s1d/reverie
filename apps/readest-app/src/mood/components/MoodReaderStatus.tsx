@@ -1,5 +1,6 @@
 // Reader mood UI. While analysing: animated icon in the header + progress row in the sidebar.
-// Once ready: a 2px mood-coloured line at the top, a mood chip in the header, a mood row in the sidebar.
+// Once ready: a 2px mood-coloured line at the top (+ mood music), a mood chip in the header, a mood row
+// in the sidebar.
 // Nothing here covers the book text.
 import clsx from 'clsx';
 import { useMemo } from 'react';
@@ -7,8 +8,11 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useBookProgress } from '@/store/readerProgressStore';
 import { useSidebarStore } from '@/store/sidebarStore';
 import { MOOD_COLORS, type Mood } from '../moods';
+import { useMusicSettings } from '../musicSettings';
 import { findChunkIndex } from '../position';
 import { useMoodStore } from '../store';
+import { useMoodPlayer } from '../useMoodPlayer';
+import { MoodTour } from './MoodTour';
 
 const hashOf = (bookKey: string) => bookKey.split('-')[0]!;
 
@@ -63,16 +67,25 @@ const MoodDot = ({ mood }: { mood: Mood }) => (
   />
 );
 
-/** Always-visible 2px line in the current mood's colour. Sits above the header, never over text. */
+/**
+ * Always-visible 2px line in the current mood's colour (sits above the header, never over text),
+ * and the mood music player. One per book view; the player makes sure only one plays.
+ */
 export const MoodTopLine = ({ bookKey }: { bookKey: string }) => {
   const mood = useCurrentMood(bookKey);
-  if (!mood) return null;
+  useMoodPlayer(mood, useMusicSettings());
   return (
-    <div
-      className='pointer-events-none absolute inset-x-0 top-0 z-20 h-[2px] transition-colors duration-700 eink:hidden'
-      style={{ backgroundColor: MOOD_COLORS[mood] }}
-      aria-hidden='true'
-    />
+    <>
+      {mood && (
+        <div
+          data-mood-tour='line'
+          className='pointer-events-none absolute inset-x-0 top-0 z-20 h-[2px] transition-colors duration-700 eink:hidden'
+          style={{ backgroundColor: MOOD_COLORS[mood] }}
+          aria-hidden='true'
+        />
+      )}
+      <MoodTour bookKey={bookKey} />
+    </>
   );
 };
 
@@ -86,6 +99,7 @@ export const MoodHeaderIcon = ({ bookKey, size }: { bookKey: string; size: numbe
     const label = _('Analysing mood · {{percent}}%', { percent });
     return (
       <button
+        data-mood-tour='analysing'
         title={label}
         aria-label={label}
         className='btn btn-ghost h-8 min-h-8 w-8 p-0'
@@ -99,6 +113,7 @@ export const MoodHeaderIcon = ({ bookKey, size }: { bookKey: string; size: numbe
   const label = _('Current mood: {{mood}}', { mood: _(mood) });
   return (
     <button
+      data-mood-tour='chip'
       title={label}
       aria-label={label}
       className='btn btn-ghost h-8 min-h-8 gap-1.5 rounded-full px-2 text-xs font-normal'

@@ -57,15 +57,19 @@ const run = async () => {
   running = false;
 };
 
-// Imported and existing books join the back of the queue.
+// Already-analysed books are ready right away; only books without a cached timeline wait in the
+// one-at-a-time queue (a cache load must never wait behind another book's 7-minute analysis).
 const enqueueLibrary = (library: Book[]) => {
   const { books } = useMoodStore.getState();
   for (const book of library) {
     if (!isMoodBook(book) || books[book.hash]) continue;
     setMoodState(book.hash, { status: 'queued' });
-    pending.push(book.hash);
+    void loadCachedTimeline(book).then((cached) => {
+      if (cached) return setMoodState(book.hash, timelineState(book, cached));
+      pending.push(book.hash);
+      void run();
+    });
   }
-  void run();
 };
 // Browser only: Providers also renders on the server, where there is no library or window.
 if (typeof window !== 'undefined') {
