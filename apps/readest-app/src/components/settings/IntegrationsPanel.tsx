@@ -70,6 +70,7 @@ import {
 import type { FileSyncBackendKind } from '@/services/sync/file/providerRegistry';
 import { canBackendRun } from '@/services/sync/file/runLibrarySync';
 import SubPageHeader from './SubPageHeader';
+import { isOfflineBuild } from '@/reverie/offline';
 import { BoxedList, NavigationRow, SectionTitle, SettingLabel, Tips } from './primitives';
 
 type SubPage =
@@ -588,6 +589,9 @@ const IntegrationsPanel: React.FC = () => {
   const absStatus = absCount > 0 ? _('{{count}} server', { count: absCount }) : _('No servers');
   // Enabled rows show the announced device name (falling back to the stored
   // custom alias, then a bare "On" until the service reports its alias).
+  // Reverie: online content sources render nothing in the offline build (Nearby BookDrop stays).
+  const OnlineIntegrationRow = isOfflineBuild() ? () => null : IntegrationRow;
+
   const localSendStatus = !isLocalSendEnabled()
     ? _('Off')
     : localSendAlias || getLocalSendAlias() || _('On');
@@ -601,7 +605,10 @@ const IntegrationsPanel: React.FC = () => {
         </p>
       </div>
 
-      <div className='w-full' data-setting-id='settings.integrations.sync'>
+      <div
+        className={isOfflineBuild() ? 'hidden' : 'w-full'}
+        data-setting-id='settings.integrations.sync'
+      >
         <SectionTitle className='mb-2'>{_('Reading Sync')}</SectionTitle>
         <div className='card eink-bordered border-base-200 bg-base-100 overflow-hidden border'>
           <div className='divide-base-200 divide-y'>
@@ -639,7 +646,10 @@ const IntegrationsPanel: React.FC = () => {
         </div>
       </div>
 
-      <div className='w-full' data-setting-id='settings.integrations.cloudSync'>
+      <div
+        className={isOfflineBuild() ? 'hidden' : 'w-full'}
+        data-setting-id='settings.integrations.cloudSync'
+      >
         <SectionTitle className='mb-2'>{_('Cloud Sync')}</SectionTitle>
         <div className='card eink-bordered border-base-200 bg-base-100 overflow-hidden border'>
           <div
@@ -779,19 +789,19 @@ const IntegrationsPanel: React.FC = () => {
         <SectionTitle className='mb-2'>{_('Content Sources')}</SectionTitle>
         <div className='card eink-bordered border-base-200 bg-base-100 overflow-hidden border'>
           <div className='divide-base-200 divide-y'>
-            <IntegrationRow
+            <OnlineIntegrationRow
               icon={RiRssLine}
               title={_('OPDS Catalogs')}
               status={opdsStatus}
               onClick={() => setSubPage('opds')}
             />
-            <IntegrationRow
+            <OnlineIntegrationRow
               icon={RiHeadphoneLine}
               title={_('Audiobookshelf')}
               status={absStatus}
               onClick={() => setSubPage('audiobookshelf')}
             />
-            <IntegrationRow
+            <OnlineIntegrationRow
               icon={RiSendPlaneLine}
               title={_('Send to Readest')}
               status={_('Email books to your library')}
@@ -809,7 +819,7 @@ const IntegrationsPanel: React.FC = () => {
         </div>
       </div>
 
-      {appService?.isDesktopApp && (
+      {appService?.isDesktopApp && !isOfflineBuild() && (
         <div className='w-full' data-setting-id='settings.integrations.discord'>
           <SectionTitle className='mb-2'>{_('Discord')}</SectionTitle>
           <div className='card eink-bordered border-base-200 bg-base-100 overflow-hidden border'>
