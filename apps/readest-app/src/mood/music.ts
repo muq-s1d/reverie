@@ -5,10 +5,17 @@ export interface MusicSettings {
   enabled: boolean;
   volume: number; // 0..1
   muted: boolean;
+  /** Guided tour seen (finished or skipped). */
+  tourDone: boolean;
 }
 
 // Off until the user opts in (onboarding tour or Settings → Music): no surprise sound.
-export const DEFAULT_MUSIC_SETTINGS: MusicSettings = { enabled: false, volume: 0.5, muted: false };
+export const DEFAULT_MUSIC_SETTINGS: MusicSettings = {
+  enabled: false,
+  volume: 0.5,
+  muted: false,
+  tourDone: false,
+};
 
 const slug: Record<Mood, string> = {
   Joy: 'joy',

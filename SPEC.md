@@ -46,10 +46,11 @@ Neutral · Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disg
 - [x] Mood UI hidden for non-EPUB/PDF formats
 
 ### Phase 5 — Music Engine
-- [ ] Port `useMoodPlayer` (dual Howl crossfade, prefetch, fade-leak fix)
+- [x] Port `useMoodPlayer` (dual Howl crossfade, prefetch, fade-leak fix)
 - [ ] Ship default CC0/CC-BY mood tracks (see notes/plan.md sources); credit each
 - [ ] Custom music folder per mood (user picks a local folder)
-- [ ] Music settings (on/off, volume, mute) in Readest's settings UI
+- [x] Music settings (on/off, volume, mute) in Readest's settings UI
+- [x] First-run guided tour of the mood feature (tooltips on line, chip, music opt-in)
 
 ### Phase 6 — Polish + Packaging
 - [ ] Installers: Linux (AppImage/deb), Windows, macOS

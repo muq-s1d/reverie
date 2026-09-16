@@ -10,7 +10,7 @@ import { saveMusicSettings, useMusicSettings } from '../musicSettings';
 const MusicPanel: React.FC<SettingsPanelPanelProp> = ({ onRegisterReset }) => {
   const _ = useTranslation();
   const { envConfig } = useEnv();
-  const { enabled, volume, muted } = useMusicSettings();
+  const { enabled, volume, muted, tourDone } = useMusicSettings();
   const save = (patch: Parameters<typeof saveMusicSettings>[1]) =>
     saveMusicSettings(envConfig, patch);
 
@@ -57,6 +57,21 @@ const MusicPanel: React.FC<SettingsPanelPanelProp> = ({ onRegisterReset }) => {
           onChange={() => save({ muted: !muted })}
           data-setting-id='settings.music.muted'
         />
+      </BoxedList>
+      <BoxedList title={_('Help')} data-setting-id='settings.music.help'>
+        <SettingsRow
+          label={_('Mood tour')}
+          description={_('Shows how mood music works next time you open a book')}
+          asLabel={false}
+        >
+          <button
+            className='btn btn-ghost btn-sm eink-bordered'
+            disabled={!tourDone}
+            onClick={() => save({ tourDone: false })}
+          >
+            {tourDone ? _('Show tour again') : _('Will show')}
+          </button>
+        </SettingsRow>
       </BoxedList>
     </div>
   );

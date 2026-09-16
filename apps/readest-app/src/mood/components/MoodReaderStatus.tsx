@@ -12,6 +12,7 @@ import { useMusicSettings } from '../musicSettings';
 import { findChunkIndex } from '../position';
 import { useMoodStore } from '../store';
 import { useMoodPlayer } from '../useMoodPlayer';
+import { MoodTour } from './MoodTour';
 
 const hashOf = (bookKey: string) => bookKey.split('-')[0]!;
 
@@ -73,13 +74,18 @@ const MoodDot = ({ mood }: { mood: Mood }) => (
 export const MoodTopLine = ({ bookKey }: { bookKey: string }) => {
   const mood = useCurrentMood(bookKey);
   useMoodPlayer(mood, useMusicSettings());
-  if (!mood) return null;
   return (
-    <div
-      className='pointer-events-none absolute inset-x-0 top-0 z-20 h-[2px] transition-colors duration-700 eink:hidden'
-      style={{ backgroundColor: MOOD_COLORS[mood] }}
-      aria-hidden='true'
-    />
+    <>
+      {mood && (
+        <div
+          data-mood-tour='line'
+          className='pointer-events-none absolute inset-x-0 top-0 z-20 h-[2px] transition-colors duration-700 eink:hidden'
+          style={{ backgroundColor: MOOD_COLORS[mood] }}
+          aria-hidden='true'
+        />
+      )}
+      <MoodTour bookKey={bookKey} />
+    </>
   );
 };
 
@@ -93,6 +99,7 @@ export const MoodHeaderIcon = ({ bookKey, size }: { bookKey: string; size: numbe
     const label = _('Analysing mood · {{percent}}%', { percent });
     return (
       <button
+        data-mood-tour='analysing'
         title={label}
         aria-label={label}
         className='btn btn-ghost h-8 min-h-8 w-8 p-0'
@@ -106,6 +113,7 @@ export const MoodHeaderIcon = ({ bookKey, size }: { bookKey: string; size: numbe
   const label = _('Current mood: {{mood}}', { mood: _(mood) });
   return (
     <button
+      data-mood-tour='chip'
       title={label}
       aria-label={label}
       className='btn btn-ghost h-8 min-h-8 gap-1.5 rounded-full px-2 text-xs font-normal'
