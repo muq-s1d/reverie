@@ -35,6 +35,7 @@ import MiscPanel from './MiscPanel';
 import AIPanel from './AIPanel';
 import TTSPanel from './TTSPanel';
 import MusicPanel from '@/mood/components/MusicPanel';
+import { isOfflineBuild } from '@/reverie/offline';
 
 export type SettingsPanelType =
   | 'Font'
@@ -118,7 +119,7 @@ const SettingsDialog: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       tab: 'AI',
       icon: PiRobot,
       label: _('AI Assistant'),
-      disabled: process.env.NODE_ENV === 'production',
+      disabled: process.env.NODE_ENV === 'production' || isOfflineBuild(), // Reverie: offline
     },
     {
       tab: 'TTS',

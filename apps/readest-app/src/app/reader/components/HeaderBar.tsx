@@ -34,6 +34,7 @@ import TranslationToggler from './TranslationToggler';
 import ViewMenu from './ViewMenu';
 import SyncInfoDialog from './SyncInfoDialog';
 import { MoodHeaderIcon, MoodTopLine } from '@/mood/components/MoodReaderStatus';
+import { isOfflineBuild } from '@/reverie/offline';
 
 interface HeaderBarProps {
   bookKey: string;
@@ -264,7 +265,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
               <VscLibrary size={iconSize18} className='fill-base-content' />
             </button>
             <BookmarkToggler bookKey={bookKey} />
-            <TranslationToggler bookKey={bookKey} />
+            {!isOfflineBuild() && <TranslationToggler bookKey={bookKey} />}
             <MoodHeaderIcon bookKey={bookKey} size={iconSize18} />
           </div>
           {enableAnnotationQuickActions && (

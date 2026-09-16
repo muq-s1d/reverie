@@ -10,6 +10,7 @@ import { BsTranslate } from 'react-icons/bs';
 import { FaHeadphones } from 'react-icons/fa6';
 import { IoIosBuild } from 'react-icons/io';
 import { AnnotationToolType } from '@/types/annotator';
+import { isOfflineBuild } from '@/reverie/offline';
 import { stubTranslation as _ } from '@/utils/misc';
 
 type AnnotationToolButton = {
@@ -36,7 +37,7 @@ function createAnnotationToolButtons<T extends AnnotationToolType>(
   return buttons;
 }
 
-export const annotationToolButtons = createAnnotationToolButtons([
+const allAnnotationToolButtons = createAnnotationToolButtons([
   {
     type: 'copy',
     label: _('Copy'),
@@ -105,6 +106,11 @@ export const annotationToolButtons = createAnnotationToolButtons([
     quickAction: true,
   },
 ]);
+
+// Reverie: translation needs the internet.
+export const annotationToolButtons = allAnnotationToolButtons.filter(
+  (button) => !(isOfflineBuild() && button.type === 'translate'),
+);
 
 export const annotationToolQuickActions = annotationToolButtons.filter(
   (button) => button.quickAction,
