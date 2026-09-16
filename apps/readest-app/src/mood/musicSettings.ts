@@ -1,8 +1,10 @@
 // Mood music settings, stored in Readest's settings file as `moodMusic`.
-import type { EnvConfigType } from '@/services/environment';
 import { saveSysSettings } from '@/helpers/settings';
+import type { EnvConfigType } from '@/services/environment';
 import { useSettingsStore } from '@/store/settingsStore';
 import { DEFAULT_MUSIC_SETTINGS, type MusicSettings } from './music';
+
+export const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'aac', 'ogg', 'opus', 'wav', 'flac'];
 
 // Destructured store read (not a selector) to match how Readest components read settings.
 export const useMusicSettings = (): MusicSettings => {

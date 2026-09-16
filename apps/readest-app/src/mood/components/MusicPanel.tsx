@@ -1,23 +1,57 @@
-// Settings → Music tab.
-import { useEffect } from 'react';
-import { BoxedList, SettingsRow, SettingsSwitchRow } from '@/components/settings/primitives';
+// Settings → Music tab: on/off, volume, mute; per-mood track pages; tour reset.
+import { useEffect, useState } from 'react';
+import { MdPlayArrow, MdStop } from 'react-icons/md';
+import { Toggle } from '@/components/primitives/toggle';
+import {
+  BoxedList,
+  NavigationRow,
+  SettingsRow,
+  SettingsSwitchRow,
+} from '@/components/settings/primitives';
 import type { SettingsPanelPanelProp } from '@/components/settings/SettingsDialog';
+import SubPageHeader from '@/components/settings/SubPageHeader';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { DEFAULT_MUSIC_SETTINGS } from '../music';
-import { saveMusicSettings, useMusicSettings } from '../musicSettings';
+import { isTauriAppPlatform } from '@/services/environment';
+import { MOOD_COLORS, MOODS, type Mood } from '../moods';
+import {
+  builtInTracks,
+  DEFAULT_MUSIC_SETTINGS,
+  isBuiltInTrack,
+  type MusicSettings,
+  moodTracks,
+  trackName,
+} from '../music';
+import { AUDIO_EXTENSIONS, saveMusicSettings, useMusicSettings } from '../musicSettings';
+import { stopPreview, togglePreview, usePreviewStore } from '../preview';
+
+const moodDot = (mood: Mood) =>
+  function MoodDotIcon() {
+    return (
+      <span
+        className='eink:border eink:border-base-content inline-block h-2.5 w-2.5 rounded-full'
+        style={{ backgroundColor: MOOD_COLORS[mood] }}
+      />
+    );
+  };
 
 const MusicPanel: React.FC<SettingsPanelPanelProp> = ({ onRegisterReset }) => {
   const _ = useTranslation();
   const { envConfig } = useEnv();
-  const { enabled, volume, muted, tourDone } = useMusicSettings();
-  const save = (patch: Parameters<typeof saveMusicSettings>[1]) =>
-    saveMusicSettings(envConfig, patch);
+  const settings = useMusicSettings();
+  const { enabled, volume, muted, tourDone, disabledTracks } = settings;
+  const [openMood, setOpenMood] = useState<Mood | null>(null);
+  const save = (patch: Partial<MusicSettings>) => saveMusicSettings(envConfig, patch);
 
   useEffect(() => {
     onRegisterReset(() => save(DEFAULT_MUSIC_SETTINGS));
+    return stopPreview; // leaving the tab stops any preview
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (openMood) {
+    return <MoodTracksPage mood={openMood} onBack={() => setOpenMood(null)} />;
+  }
 
   return (
     <div className='my-4 w-full space-y-6'>
@@ -58,6 +92,31 @@ const MusicPanel: React.FC<SettingsPanelPanelProp> = ({ onRegisterReset }) => {
           data-setting-id='settings.music.muted'
         />
       </BoxedList>
+
+      <BoxedList
+        title={_('Tracks')}
+        description={_('Listen to tracks, switch them on or off, or add your own songs.')}
+        data-setting-id='settings.music.tracks'
+      >
+        {MOODS.map((mood) => {
+          const all = moodTracks(mood, settings);
+          const on = all.filter((t) => !disabledTracks.includes(t)).length;
+          const yours = all.length - builtInTracks(mood).length;
+          const status = yours
+            ? _('{{on}} of {{total}} on · {{yours}} yours', { on, total: all.length, yours })
+            : _('{{on}} of {{total}} on', { on, total: all.length });
+          return (
+            <NavigationRow
+              key={mood}
+              icon={moodDot(mood)}
+              title={_(mood)}
+              status={status}
+              onClick={() => setOpenMood(mood)}
+            />
+          );
+        })}
+      </BoxedList>
+
       <BoxedList title={_('Help')} data-setting-id='settings.music.help'>
         <SettingsRow
           label={_('Mood tour')}
@@ -73,6 +132,102 @@ const MusicPanel: React.FC<SettingsPanelPanelProp> = ({ onRegisterReset }) => {
           </button>
         </SettingsRow>
       </BoxedList>
+    </div>
+  );
+};
+
+const MoodTracksPage = ({ mood, onBack }: { mood: Mood; onBack: () => void }) => {
+  const _ = useTranslation();
+  const { envConfig, appService } = useEnv();
+  const { disabledTracks, userTracks } = useMusicSettings();
+  const playing = usePreviewStore((s) => s.playing);
+  const save = (patch: Partial<MusicSettings>) => saveMusicSettings(envConfig, patch);
+  const yours = userTracks[mood] ?? [];
+
+  const setOn = (id: string, on: boolean) =>
+    save({
+      disabledTracks: on ? disabledTracks.filter((t) => t !== id) : [...disabledTracks, id],
+    });
+
+  const addSongs = async () => {
+    // Readest's picker also grants the app read access to the chosen files (kept across restarts).
+    const files = (await appService?.selectFiles(_('Audio'), AUDIO_EXTENSIONS)) ?? [];
+    const added = files.filter((f) => !yours.includes(f));
+    if (added.length) await save({ userTracks: { ...userTracks, [mood]: [...yours, ...added] } });
+  };
+
+  // Removes the song from Reverie only; the file stays on the computer.
+  const remove = (id: string) => {
+    if (playing === id) stopPreview();
+    return save({
+      userTracks: { ...userTracks, [mood]: yours.filter((t) => t !== id) },
+      disabledTracks: disabledTracks.filter((t) => t !== id),
+    });
+  };
+
+  const row = (id: string, label: string) => (
+    <SettingsRow
+      key={id}
+      asLabel={false}
+      label={
+        <span className='flex min-w-0 items-center gap-2'>
+          <button
+            className='btn btn-ghost btn-circle btn-sm eink-bordered shrink-0'
+            aria-label={playing === id ? _('Stop preview') : _('Preview {{name}}', { name: label })}
+            onClick={() => togglePreview(id)}
+          >
+            {playing === id ? <MdStop size={18} /> : <MdPlayArrow size={18} />}
+          </button>
+          <span className='truncate'>{label}</span>
+        </span>
+      }
+    >
+      <div className='flex items-center gap-2'>
+        {!isBuiltInTrack(id) && (
+          <button className='btn btn-ghost btn-sm' onClick={() => remove(id)}>
+            {_('Remove')}
+          </button>
+        )}
+        <Toggle
+          checked={!disabledTracks.includes(id)}
+          aria-label={_('Play {{name}}', { name: label })}
+          onChange={(e) => setOn(id, e.target.checked)}
+        />
+      </div>
+    </SettingsRow>
+  );
+
+  return (
+    <div className='my-4 w-full space-y-6'>
+      <SubPageHeader
+        parentLabel={_('Music')}
+        currentLabel={_(mood)}
+        description={_(
+          'Every switched-on track can play for this mood. With all off, Neutral tracks play instead.',
+        )}
+        onBack={() => {
+          stopPreview();
+          onBack();
+        }}
+      />
+      <BoxedList title={_('Built-in tracks')}>
+        {builtInTracks(mood).map((id, i) => row(id, _('Track {{n}}', { n: i + 1 })))}
+      </BoxedList>
+      {isTauriAppPlatform() && (
+        <BoxedList
+          title={_('Your songs')}
+          description={_(
+            'Removing a song only takes it out of Reverie. The file stays on your computer.',
+          )}
+        >
+          {yours.map((id) => row(id, trackName(id) ?? id))}
+          <SettingsRow label={_('Add your own songs to this mood')} asLabel={false}>
+            <button className='btn btn-ghost btn-sm eink-bordered' onClick={addSongs}>
+              {_('Add songs…')}
+            </button>
+          </SettingsRow>
+        </BoxedList>
+      )}
     </div>
   );
 };

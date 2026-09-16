@@ -6,11 +6,13 @@ import { useEffect, useRef } from 'react';
 import type { Mood } from './moods';
 import {
   type MusicSettings,
-  moodTracks,
   PREFETCH_COUNT,
   pickRandomStart,
   pickTrack,
+  playableTracks,
+  isBuiltInTrack,
 } from './music';
+import { loadTrackUrl, trackExt } from './trackUrls';
 
 const CROSSFADE_MS = 2500;
 const MOOD_CHANGE_DEBOUNCE_MS = 2000;
@@ -42,6 +44,8 @@ export function useMoodPlayer(mood: Mood | null, settings: MusicSettings) {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const pendingPlaybackRef = useRef<(() => void) | null>(null);
+  // The in-flight load of a user song; a newer crossfade replaces it so a stale load can't start.
+  const loadTokenRef = useRef<symbol | null>(null);
 
   const isOwner = () => {
     activeOwner ??= ownerRef.current;
@@ -63,7 +67,19 @@ export function useMoodPlayer(mood: Mood | null, settings: MusicSettings) {
     fadeIntervalsRef.current.delete(id);
   };
 
+  const newHowl = (id: string, url: string) =>
+    new Howl({
+      src: url,
+      format: [trackExt(id)],
+      loop: true,
+      volume: 0,
+      preload: true,
+      html5: true,
+    });
+
+  // Built-in tracks only: user songs are loaded into memory when they're about to play.
   const preloadTrack = (src: string) => {
+    if (!isBuiltInTrack(src)) return;
     const cache = preloadCacheRef.current;
     if (cache.has(src) || currentTrackSrcRef.current === src || nextTrackSrcRef.current === src)
       return;
@@ -74,11 +90,11 @@ export function useMoodPlayer(mood: Mood | null, settings: MusicSettings) {
         cache.delete(oldest);
       }
     }
-    cache.set(src, new Howl({ src, loop: true, volume: 0, preload: true, html5: true }));
+    cache.set(src, newHowl(src, src));
   };
 
   const prefetchUpcoming = (forMood: Mood, exclude: string) =>
-    moodTracks(forMood)
+    playableTracks(forMood, settingsRef.current)
       .filter((t) => t !== exclude)
       .slice(0, PREFETCH_COUNT)
       .forEach(preloadTrack);
@@ -99,10 +115,27 @@ export function useMoodPlayer(mood: Mood | null, settings: MusicSettings) {
     fadingHowlsRef.current.forEach((h) => cleanup(h));
     fadingHowlsRef.current.clear();
 
-    let newHowl = preloadCacheRef.current.get(newTrack);
-    if (newHowl) preloadCacheRef.current.delete(newTrack);
-    else newHowl = new Howl({ src: newTrack, loop: true, volume: 0, preload: true, html5: true });
-    const howl = newHowl;
+    // User song not loaded yet: read it into memory first, then come back through the cached path.
+    if (!preloadCacheRef.current.has(newTrack) && !isBuiltInTrack(newTrack)) {
+      const token = Symbol('load');
+      loadTokenRef.current = token;
+      loadTrackUrl(newTrack)
+        .then((url) => {
+          if (loadTokenRef.current !== token) return; // superseded while loading
+          preloadCacheRef.current.set(newTrack, newHowl(newTrack, url));
+          startCrossfade(newTrack, newMood, triedTracks, neutralFallbackUsed);
+        })
+        .catch((err) => {
+          if (loadTokenRef.current !== token) return;
+          console.warn('[mood] could not read track', newTrack, err);
+          fallbackAfterError(newTrack, newMood, triedTracks, neutralFallbackUsed);
+        });
+      return;
+    }
+    loadTokenRef.current = null;
+
+    const howl = preloadCacheRef.current.get(newTrack) ?? newHowl(newTrack, newTrack);
+    preloadCacheRef.current.delete(newTrack);
 
     nextHowlRef.current = howl;
     nextTrackSrcRef.current = newTrack;
@@ -161,17 +194,27 @@ export function useMoodPlayer(mood: Mood | null, settings: MusicSettings) {
         nextTrackSrcRef.current = '';
       }
       cleanup(howl);
-      const tried = new Set(triedTracks).add(newTrack);
-      const remaining = moodTracks(newMood).filter((t) => !tried.has(t));
-      if (remaining.length) {
-        const fallback = remaining[Math.floor(Math.random() * remaining.length)]!;
-        return startCrossfade(fallback, newMood, tried, neutralFallbackUsed);
-      }
-      // Every track for this mood failed: try one Neutral track, then give up quietly.
-      if (!neutralFallbackUsed && newMood !== 'Neutral') {
-        startCrossfade(pickTrack('Neutral'), newMood, tried, true);
-      }
+      fallbackAfterError(newTrack, newMood, triedTracks, neutralFallbackUsed);
     });
+  };
+
+  // A track failed: try another playable track for the mood, then one Neutral track, then give up.
+  const fallbackAfterError = (
+    failedTrack: string,
+    forMood: Mood,
+    triedTracks: Set<string>,
+    neutralFallbackUsed: boolean,
+  ) => {
+    const tried = new Set(triedTracks).add(failedTrack);
+    const remaining = playableTracks(forMood, settingsRef.current).filter((t) => !tried.has(t));
+    if (remaining.length) {
+      const fallback = remaining[Math.floor(Math.random() * remaining.length)]!;
+      return startCrossfade(fallback, forMood, tried, neutralFallbackUsed);
+    }
+    const neutral = pickTrack('Neutral', settingsRef.current);
+    if (!neutralFallbackUsed && forMood !== 'Neutral' && neutral) {
+      startCrossfade(neutral, forMood, tried, true);
+    }
   };
 
   // Mood-driven playback: crossfade as the mood changes.
@@ -188,7 +231,8 @@ export function useMoodPlayer(mood: Mood | null, settings: MusicSettings) {
     // Nothing loaded yet (first enable, or reader just opened): start now.
     if (!currentHowlRef.current && !nextHowlRef.current) {
       lastMoodRef.current = mood;
-      startCrossfade(pickTrack(mood, lastPlayedTrackRef.current), mood);
+      const track = pickTrack(mood, settingsRef.current, lastPlayedTrackRef.current);
+      if (track) startCrossfade(track, mood); // no track switched on: stay silent
       return;
     }
     // Same mood: resume if paused.
@@ -200,8 +244,8 @@ export function useMoodPlayer(mood: Mood | null, settings: MusicSettings) {
     // Mood changed: wait a moment so turning pages near a boundary doesn't flip-flop the music.
     lastMoodRef.current = mood;
     moodChangeTimeoutRef.current = setTimeout(() => {
-      if (settingsRef.current.enabled)
-        startCrossfade(pickTrack(mood, lastPlayedTrackRef.current), mood);
+      const track = pickTrack(mood, settingsRef.current, lastPlayedTrackRef.current);
+      if (settingsRef.current.enabled && track) startCrossfade(track, mood);
     }, MOOD_CHANGE_DEBOUNCE_MS);
   }, [mood, settings.enabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -226,6 +270,7 @@ export function useMoodPlayer(mood: Mood | null, settings: MusicSettings) {
     const owner = ownerRef.current;
     return () => {
       if (activeOwner === owner) activeOwner = null;
+      loadTokenRef.current = null; // a song still loading must not start after the reader closes
       if (moodChangeTimeoutRef.current) clearTimeout(moodChangeTimeoutRef.current);
       moodChangeTimeoutRef.current = null;
       fadeIntervalsRef.current.forEach((id) => clearInterval(id));
