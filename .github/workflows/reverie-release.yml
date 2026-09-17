@@ -1,0 +1,136 @@
+# Builds Reverie installers for Linux, Windows and macOS into a draft GitHub release.
+#
+# Run it by hand: Actions -> "Reverie installers" -> Run workflow.
+# Nothing here is signed (no paid certificates), so Windows shows a publisher warning
+# and macOS needs right-click -> Open on first launch. The README says so too.
+#
+# The mood model and music are not in git; tools/assets/fetch.sh pulls them from the
+# assets-v1 release. Readest's own release.yml is left untouched for upstream merges.
+name: Reverie installers
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build into (a draft release is created if missing)'
+        required: true
+        default: v0.1.0
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-22.04
+            rust_target: x86_64-unknown-linux-gnu
+          - platform: windows
+            os: windows-latest
+            rust_target: x86_64-pc-windows-msvc
+            args: '--target x86_64-pc-windows-msvc --bundles nsis'
+          - platform: macos
+            os: macos-latest
+            rust_target: aarch64-apple-darwin
+            args: '--target aarch64-apple-darwin'
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: initialize git submodules
+        run: git submodule update --init --recursive
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.platform }}-reverie
+
+      # Linux ships on the CEF runtime, which needs upstream's CEF-aware tauri CLI
+      # (scripts/tauri.mjs runs `cargo tauri` when TAURI_CEF_CARGO=1). Same pin as
+      # Readest's release.yml.
+      - name: install the CEF tauri CLI (linux)
+        if: matrix.platform == 'linux'
+        run: cargo install tauri-cli --git https://github.com/readest/tauri --rev 2b8315bd14882471b6567b1ceba84c0c0238f156 --locked --force
+
+      - name: install build dependencies (linux)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libfontconfig-dev libgtk-3-dev libwebkit2gtk-4.1 libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1 libjavascriptcoregtk-4.1-dev gir1.2-javascriptcoregtk-4.1 gir1.2-webkit2-4.1 libappindicator3-dev librsvg2-dev patchelf xdg-utils jq
+
+      # Chromium dlopens these by soname; the AppImage has to carry them or the app
+      # dies before its first log line. Lifted from Readest's release.yml.
+      - name: stage CEF AppImage runtime libraries (linux)
+        if: matrix.platform == 'linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y libnss3 libpulse0 libspeechd2 libxkbcommon-x11-0
+          nss_dir=$(dirname "$(ls /usr/lib/*-linux-gnu/nss/libsoftokn3.so)")
+          lib_dir=${nss_dir%/nss}
+          sudo cp -f --remove-destination "$nss_dir"/*.so "$lib_dir/"
+          conf=apps/readest-app/src-tauri/tauri.conf.json
+          jq --arg d "$lib_dir" '.bundle.linux.appimage.files += {
+              "/usr/lib/libspeechd.so.2": ($d + "/libspeechd.so.2"),
+              "/usr/lib/libxkbcommon-x11.so.0": ($d + "/libxkbcommon-x11.so.0")
+            }' "$conf" > "$conf.tmp" && mv "$conf.tmp" "$conf"
+
+      # tauri.windows.conf.json bundles this Explorer thumbnail DLL as a resource,
+      # so it has to exist before the build.
+      - name: build the Windows thumbnail provider (windows)
+        if: matrix.platform == 'windows'
+        working-directory: apps/readest-app/extensions/windows-thumbnail
+        run: |
+          cargo build --release --target x86_64-pc-windows-msvc
+          New-Item -ItemType Directory -Force -Path target | Out-Null
+          Copy-Item target/x86_64-pc-windows-msvc/release/windows_thumbnail.dll target/windows_thumbnail.dll -Force
+
+      - name: install dependencies
+        shell: bash
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @readest/readest-app setup-vendors
+
+      - name: fetch the mood model and music
+        shell: bash
+        run: sh tools/assets/fetch.sh
+
+      - name: build the installer
+        uses: tauri-apps/tauri-action@v0
+        id: tauri
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_CEF_CARGO: ${{ matrix.platform == 'linux' && '1' || '' }}
+          STRACE_MODE: '0'
+          NODE_OPTIONS: '--max-old-space-size=8192'
+        with:
+          projectPath: apps/readest-app
+          tauriScript: pnpm tauri
+          tagName: ${{ inputs.tag }}
+          releaseName: Reverie ${{ inputs.tag }}
+          releaseDraft: true
+          releaseBody: |
+            Installers are unsigned: Windows shows an "unknown publisher" warning, and on macOS
+            right-click the app and choose Open the first time.
+          args: ${{ matrix.args || '' }}
+
+      - name: report installer sizes
+        shell: bash
+        run: |
+          echo "### ${{ matrix.platform }} bundle sizes" >> $GITHUB_STEP_SUMMARY
+          for p in ${{ join(fromJSON(steps.tauri.outputs.artifactPaths), ' ') }}; do
+            [ -f "$p" ] && printf -- '- %s — %s\n' "$(basename "$p")" "$(du -h "$p" | cut -f1)" >> $GITHUB_STEP_SUMMARY
+          done

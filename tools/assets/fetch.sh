@@ -13,6 +13,10 @@ RELEASE=https://github.com/muq-s1d/reverie/releases/download/assets-v1
 MODEL_SHA=bf72da5729bf26d9b5857302715edf8353500fb25b0e8518163776ee59241adc
 MUSIC_SHA=6c382a5b6fe6975e54915bfac8d57c2f0fbdb82521a5dc8bc0eafd69fcd71f97
 
+# macOS has shasum, Linux has sha256sum.
+if command -v sha256sum >/dev/null 2>&1; then sha256() { sha256sum "$1" | cut -d' ' -f1; }
+else sha256() { shasum -a 256 "$1" | cut -d' ' -f1; }; fi
+
 here=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 app="$here/../../apps/readest-app"
 pub="$app/public"
@@ -23,10 +27,10 @@ tmp=${TMPDIR:-/tmp}
 fetch() {
   name=$1 sha=$2
   tar="$tmp/$name.tar"
-  if [ ! -f "$tar" ] || [ "$(sha256sum "$tar" | cut -d' ' -f1)" != "$sha" ]; then
+  if [ ! -f "$tar" ] || [ "$(sha256 "$tar")" != "$sha" ]; then
     echo "Downloading $name..."
     curl -fL --retry 5 --retry-all-errors -o "$tar" "$RELEASE/$name.tar"
-    [ "$(sha256sum "$tar" | cut -d' ' -f1)" = "$sha" ] || { echo "$name: checksum mismatch"; exit 1; }
+    [ "$(sha256 "$tar")" = "$sha" ] || { echo "$name: checksum mismatch"; exit 1; }
   fi
 }
 
