@@ -161,6 +161,18 @@ export const AboutWindow = () => {
                 .
               </p>
             )}
+            {isOfflineBuild() && (
+              <p className='text-neutral-content text-xs'>
+                Mood model:{' '}
+                <Link
+                  href='https://huggingface.co/monologg/bert-base-cased-goemotions-original'
+                  className='text-blue-500 underline'
+                >
+                  bert-base-cased-goemotions
+                </Link>{' '}
+                by monologg. Built-in music by Scott Buckley and Kevin MacLeod, CC-BY 4.0.
+              </p>
+            )}
             <p className='text-neutral-content text-sm'>
               © {new Date().getFullYear()} Bilingify LLC. All rights reserved.
             </p>

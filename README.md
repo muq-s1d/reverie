@@ -65,17 +65,14 @@ pnpm install
 pnpm --filter @readest/readest-app setup-vendors
 ```
 
-The mood model (~220 MB) and music (~190 MB) are too big for git, so they are fetched separately:
+The mood model (~220 MB) and music (~190 MB) are too big for git, so one script downloads them:
 
 ```bash
-# Music: downloads the 60 tracks and converts them to MP3 (needs curl and ffmpeg)
-python3 tools/mood-music/install.py
-
-# Model: exports the model to ONNX (needs Python with optimum, onnx, onnxconverter-common and onnxruntime),
-# then copies it into the app
-python tools/mood-model/convert.py
-sh tools/mood-model/install.sh
+sh tools/assets/fetch.sh
 ```
+
+To rebuild them from the original sources instead, see `tools/mood-model/` (ONNX export) and
+`tools/mood-music/` (downloads and converts the tracks).
 
 Then run the desktop app:
 
@@ -91,8 +88,9 @@ Readest's own code so Readest updates can still be merged in.
 
 - **[Readest](https://github.com/readest/readest)** by Bilingify LLC, the reader Reverie is built on (AGPL-3.0).
   It in turn builds on [foliate-js](https://github.com/johnfactotum/foliate-js).
-- **Mood model:** [`monologg/bert-base-cased-goemotions-original`][model], a BERT model fine-tuned on Google's
-  [GoEmotions][goemotions] dataset.
+- **Mood model:** [`monologg/bert-base-cased-goemotions-original`][model] by Jangwon Park (monologg), a BERT
+  model fine-tuned on Google's [GoEmotions][goemotions] dataset. Reverie ships it converted to ONNX; the model
+  is his work, and its parts (BERT and GoEmotions) are Apache-2.0.
 - **Music:** Scott Buckley and Kevin MacLeod (incompetech.com), CC-BY 4.0. Every track is listed in
   [CREDITS.md](apps/readest-app/public/music/CREDITS.md).
 - Mood engine ported from [betterReading](https://github.com/muq-s1d/betterReading), the web version of this idea.
