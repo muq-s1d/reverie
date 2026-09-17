@@ -53,6 +53,7 @@ Neutral · Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disg
 - [x] First-run guided tour of the mood feature (tooltips on line, chip, music opt-in)
 
 ### Phase 6 — Polish + Packaging
+- [x] Fully offline: hide online Readest features (AI, translation, accounts/cloud, integrations, online imports, telemetry, Edge TTS, online dictionaries), lock network (CSP + HTTP allow list), keep LocalSend
 - [ ] Installers: Linux (AppImage/deb), Windows, macOS
 - [ ] App size check (model + ~204MB music)
 - [ ] Rename/rebrand from Readest (name, icon, app id), keep AGPL notices
