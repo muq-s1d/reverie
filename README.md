@@ -1,12 +1,14 @@
 <div align="center">
-  <img src="apps/readest-app/src-tauri/icons/icon.png" alt="Reverie icon" width="120" />
-  <h1>Reverie</h1>
+  <img src=".github/readme/banner.webp" alt="Reverie: an e-reader that plays music matching the mood of your book. 100% offline, 15 moods, 60 tracks." width="100%" />
 
-An e-reader that plays music matching the mood of what you're reading.<br>
 Everything runs on your computer: no account, no server, no internet needed.
 
-[![AGPL Licence](https://img.shields.io/badge/license-AGPL--3.0-teal)](LICENSE)
-[![Platforms](https://img.shields.io/badge/platforms-Linux%2C%20Windows%2C%20macOS-green)](#download)
+[![100% offline](https://img.shields.io/badge/100%25-offline-10b981?style=flat-square)](#features)
+[![15 moods](https://img.shields.io/badge/moods-15-8b5cf6?style=flat-square)](#15-moods)
+[![60 tracks](https://img.shields.io/badge/tracks-60-f97316?style=flat-square)](apps/readest-app/public/music/CREDITS.md)
+[![Built on Readest](https://img.shields.io/badge/built%20on-Readest-c2677d?style=flat-square)](https://github.com/readest/readest)
+[![Platforms](https://img.shields.io/badge/platforms-Linux%20%C2%B7%20Windows%20%C2%B7%20macOS-5b7fa6?style=flat-square)](#download)
+[![AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-6366f1?style=flat-square)](LICENSE)
 
 </div>
 
@@ -16,18 +18,23 @@ and crossfades between soundtracks as you turn the pages.
 
 ## How it works
 
+<img src=".github/readme/how.webp" alt="Open a book, Reverie finds the mood passage by passage on your device, and the music changes as the story does." width="100%" />
+
 1. **Import a book.** EPUB and PDF books get mood music. Other formats open normally, without music.
 2. **Keep reading.** The book opens straight away. In the background, Reverie splits it into short passages
    and runs an emotion model on each one, entirely on your machine. It picks up where it left off if you close
    the app mid-way.
 3. **Hear the mood.** As you read, the thin line at the top of the page takes the colour of the current mood
-   and the music crossfades to match. There are 15 moods:
-
-   Joy · Excitement · Anticipation · Wonder/Awe · Mystery · Romance · Tenderness · Peace/Calm · Neutral ·
-   Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disgust
+   and the music crossfades to match.
 
 Music is off until you turn it on, either from the short tour the first time you open a book or in
 **Settings → Music**.
+
+## 15 moods
+
+<img src=".github/readme/moods.webp" alt="The 15 moods: Joy, Excitement, Anticipation, Wonder/Awe, Mystery, Romance, Tenderness, Peace/Calm, Neutral, Sadness, Grief/Despair, Fear, Tension/Suspense, Anger, Disgust." width="100%" />
+
+Each mood has four built-in tracks, and you can add your own.
 
 ## Features
 
