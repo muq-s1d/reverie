@@ -5,6 +5,7 @@ import { IoFileTray } from 'react-icons/io5';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import MenuItem from '@/components/MenuItem';
+import { isOfflineBuild } from '@/reverie/offline';
 import Menu from '@/components/Menu';
 
 export interface ImportMenuProps {
@@ -61,6 +62,9 @@ const ImportMenu: React.FC<ImportMenuProps> = ({
     setIsDropdownOpen?.(false);
   };
 
+  // Reverie: web/feed/catalog imports need the internet; they render nothing in the offline build.
+  const OnlineMenuItem = isOfflineBuild() ? () => null : MenuItem;
+
   return (
     <Menu
       className={clsx(
@@ -81,27 +85,30 @@ const ImportMenu: React.FC<ImportMenuProps> = ({
           onClick={handleImportFromDirectory}
         />
       )}
-      <hr aria-hidden='true' className='border-base-200 my-1' />
+      <hr
+        aria-hidden='true'
+        className={`border-base-200 my-1 ${isOfflineBuild() ? 'hidden' : ''}`}
+      />
       {onImportFromWebBrowser && (
-        <MenuItem
+        <OnlineMenuItem
           label={_('From Web Browser')}
           Icon={<MdLanguage className='h-5 w-5' />}
           onClick={handleImportFromWebBrowser}
         />
       )}
       {onImportBookFromNovelUrl && (
-        <MenuItem
+        <OnlineMenuItem
           label={_('From Web Novel')}
           Icon={<MdMenuBook className='h-5 w-5' />}
           onClick={handleImportFromNovelUrl}
         />
       )}
-      <MenuItem
+      <OnlineMenuItem
         label={_('From Feed URL')}
         Icon={<MdRssFeed className='h-5 w-5' />}
         onClick={handleOpenFeeds}
       />
-      <MenuItem
+      <OnlineMenuItem
         label={appService?.isOnlineCatalogsAccessible ? _('Online Library') : _('OPDS Catalogs')}
         Icon={<LuLibrary className='h-5 w-5' />}
         onClick={handleOpenCatalogManager}

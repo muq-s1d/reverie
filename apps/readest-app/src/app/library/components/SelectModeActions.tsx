@@ -13,6 +13,7 @@ import { IoShareSocialOutline } from 'react-icons/io5';
 import { LuFolderPlus } from 'react-icons/lu';
 import { useKeyDownActions } from '@/hooks/useKeyDownActions';
 import { useTranslation } from '@/hooks/useTranslation';
+import { isOfflineBuild } from '@/reverie/offline';
 import { isMd5 } from '@/utils/md5';
 
 interface SelectModeActionsProps {
@@ -158,6 +159,7 @@ const SelectModeActions: React.FC<SelectModeActionsProps> = ({
             // (Send / Delete / Cancel) then flows behind it.
             'max-[500px]:col-start-1',
             !canDownload && 'btn-disabled opacity-50',
+            isOfflineBuild() && 'hidden', // Reverie: no cloud
           )}
         >
           <MdOutlineCloudDownload />

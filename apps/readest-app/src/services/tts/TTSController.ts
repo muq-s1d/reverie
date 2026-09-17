@@ -49,6 +49,7 @@ import {
   type NarratedAudioChapter,
 } from './pairedAudiobook';
 import { SKIP_BACKWARD_SEC, SKIP_FORWARD_SEC } from '@/services/playback/playbackSource';
+import { isOfflineBuild } from '@/reverie/offline';
 import {
   stripInlineReadingAnnotations,
   stripInlineReadingAnnotationsFromSSML,
@@ -397,7 +398,8 @@ export class TTSController extends EventTarget {
 
   async init() {
     const availableClients = [];
-    if (await this.ttsEdgeClient.init()) {
+    // Reverie: Edge voices stream from Microsoft; the offline build uses system/web speech only.
+    if (!isOfflineBuild() && (await this.ttsEdgeClient.init())) {
       availableClients.push(this.ttsEdgeClient);
     }
     if (this.ttsNativeClient && (await this.ttsNativeClient.init())) {
@@ -418,7 +420,7 @@ export class TTSController extends EventTarget {
       }
     }
     this.ttsWebVoices = await this.ttsWebClient.getAllVoices();
-    this.ttsEdgeVoices = await this.ttsEdgeClient.getAllVoices();
+    this.ttsEdgeVoices = isOfflineBuild() ? [] : await this.ttsEdgeClient.getAllVoices();
 
     // A book that ships its own narration should be read by its narrator, not
     // synthesized — that is the whole point of having the recording. The
@@ -881,12 +883,12 @@ export class TTSController extends EventTarget {
   // and labels sentences identically to ensureTimeline so packs written here
   // and by playback share one manifest.
   canDownload(): boolean {
-    return this.ttsEdgeClient.canDownload();
+    return !isOfflineBuild() && this.ttsEdgeClient.canDownload();
   }
 
   getTTSDownloader(): TTSDownloader | null {
     const edge = this.ttsEdgeClient;
-    if (!edge.canDownload()) return null;
+    if (!this.canDownload()) return null;
     const enumerator: SectionEnumerator = {
       enumerateSection: async (sectionIndex: number) => {
         const sections = this.view.book.sections;
@@ -1777,7 +1779,7 @@ export class TTSController extends EventTarget {
 
   async getVoices(lang: string) {
     const ttsWebVoices = await this.ttsWebClient.getVoices(lang);
-    const ttsEdgeVoices = await this.ttsEdgeClient.getVoices(lang);
+    const ttsEdgeVoices = isOfflineBuild() ? [] : await this.ttsEdgeClient.getVoices(lang);
     const ttsNativeVoices = (await this.ttsNativeClient?.getVoices(lang)) ?? [];
     // The book's own narrator leads the list when there is one: it is the best
     // voice available for that book by a wide margin.

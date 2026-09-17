@@ -29,6 +29,7 @@ import {
 } from './primitives';
 import CustomDictionaries from './CustomDictionaries';
 import WordLensPanel from './WordLensPanel';
+import { isOfflineBuild } from '@/reverie/offline';
 import { PiTranslate } from 'react-icons/pi';
 
 const LangPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }) => {
@@ -343,7 +344,11 @@ const LangPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset 
         />
       </BoxedList>
 
-      <BoxedList title={_('Translation')} data-setting-id='settings.language.translationEnabled'>
+      <BoxedList
+        title={_('Translation')}
+        className={isOfflineBuild() ? 'hidden' : undefined} // Reverie: translation needs the internet
+        data-setting-id='settings.language.translationEnabled'
+      >
         <SettingsSwitchRow
           label={_('Enable Translation')}
           description={

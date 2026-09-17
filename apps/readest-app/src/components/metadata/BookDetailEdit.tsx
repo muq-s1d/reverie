@@ -10,6 +10,7 @@ import { flattenContributors, formatAuthors, formatPublisher, formatTitle } from
 import { useFileSelector } from '@/hooks/useFileSelector';
 import { FormField } from './FormField';
 import BookCover from '@/components/BookCover';
+import { isOfflineBuild } from '@/reverie/offline';
 import { useSettingsStore } from '@/store/settingsStore';
 
 interface BookDetailEditProps {
@@ -322,7 +323,7 @@ const BookDetailEdit: React.FC<BookDetailEditProps> = ({
           <button
             onClick={onAutoRetrieve}
             disabled={searchLoading}
-            className='flex items-center gap-2 rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600 disabled:opacity-50'
+            className={`flex items-center gap-2 rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600 disabled:opacity-50 ${isOfflineBuild() ? 'hidden' : ''}`} // Reverie: online lookup
             title={_('Auto-Retrieve Metadata')}
           >
             {searchLoading ? (

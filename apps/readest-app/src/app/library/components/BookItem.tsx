@@ -25,6 +25,7 @@ import { formatCompactTime } from '@/utils/time';
 import { INDETERMINATE_PROGRESS } from '@/utils/transfer';
 import ReadingProgress from './ReadingProgress';
 import { MoodCoverBar, MoodLabel } from '@/mood/components/MoodLibraryProgress';
+import { isOfflineBuild } from '@/reverie/offline';
 import BookCover from '@/components/BookCover';
 
 interface BookItemProps {
@@ -257,6 +258,7 @@ const BookItem: React.FC<BookItemProps> = ({
                 // Same for an ABS book: it streams from the server and never has
                 // uploadedAt/downloadedAt set, so without this check the badge
                 // would render forever and Upload would always fail.
+                !isOfflineBuild() && // Reverie: no cloud
                 !isFeedBook(book) &&
                 !isAudiobook(book) &&
                 (!book.uploadedAt || (book.uploadedAt && !book.downloadedAt)) && (

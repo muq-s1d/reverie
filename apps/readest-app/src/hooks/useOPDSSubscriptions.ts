@@ -8,6 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { syncSubscribedCatalogs } from '@/services/opds';
 import { queueOPDSBookUploads } from '@/services/opds/cloudUpload';
 import { AUTO_CHECK_INTERVAL_MS } from '@/services/opds/types';
+import { isOfflineBuild } from '@/reverie/offline';
 import { eventDispatcher } from '@/utils/event';
 
 export function useOPDSSubscriptions() {
@@ -19,7 +20,7 @@ export function useOPDSSubscriptions() {
 
   const checkOPDSSubscriptions = useCallback(
     async (verbose = false) => {
-      if (!appService || !libraryLoaded) return;
+      if (!appService || !libraryLoaded || isOfflineBuild()) return; // Reverie: offline
       if (isSyncingRef.current) return;
 
       const { settings } = useSettingsStore.getState();

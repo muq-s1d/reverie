@@ -8,6 +8,7 @@ import { PiRobot, PiSpeakerHigh, PiSun, PiMoon } from 'react-icons/pi';
 import { TbSunMoon } from 'react-icons/tb';
 import { MdRefresh } from 'react-icons/md';
 import { IconType } from 'react-icons';
+import { isOfflineBuild } from '@/reverie/offline';
 import { stubTranslation as _ } from '@/utils/misc';
 
 export type CommandCategory = 'settings' | 'actions' | 'navigation';
@@ -761,11 +762,13 @@ export const buildCommandRegistry = (options: CommandRegistryOptions): CommandIt
 
   // add language panel items
   for (const def of languagePanelItems) {
+    // Reverie: translation needs the internet.
+    if (isOfflineBuild() && /translat|targetLanguage/i.test(def.id)) continue;
     items.push(createSettingsItem(def, 'Language'));
   }
 
   // add ai panel items (only in dev, as of now atleast)
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production' && !isOfflineBuild()) {
     for (const def of aiPanelItems) {
       items.push(createSettingsItem(def, 'AI'));
     }
@@ -856,12 +859,9 @@ export const buildCommandRegistry = (options: CommandRegistryOptions): CommandIt
     }),
   );
 
-  items.push(
-    createActionItem({
-      id: 'action.telemetry',
-      action: options.toggleTelemetry,
-    }),
-  );
+  if (!isOfflineBuild()) {
+    items.push(createActionItem({ id: 'action.telemetry', action: options.toggleTelemetry }));
+  }
 
   return items;
 };
