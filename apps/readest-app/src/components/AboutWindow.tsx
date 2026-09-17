@@ -12,6 +12,7 @@ import SupportLinks from './SupportLinks';
 import LegalLinks from './LegalLinks';
 import Dialog from './Dialog';
 import Link from './Link';
+import { isOfflineBuild, rebrand } from '@/reverie/offline';
 
 export const setAboutDialogVisible = (visible: boolean) => {
   const dialog = document.getElementById('about_window');
@@ -112,7 +113,7 @@ export const AboutWindow = () => {
               <Image src='/icon.png' alt='App Logo' className='h-20 w-20' width={64} height={64} />
             </div>
             <div className='flex select-text flex-col items-center'>
-              <h2 className='mb-2 text-2xl font-bold'>Readest</h2>
+              <h2 className='mb-2 text-2xl font-bold'>{rebrand('Readest')}</h2>
               <button
                 type='button'
                 title={_('Copy')}
@@ -123,7 +124,7 @@ export const AboutWindow = () => {
               </button>
             </div>
             <div className='my-1 h-5'>
-              {!updateStatus && (
+              {!updateStatus && !isOfflineBuild() && (
                 <button
                   className='btn btn-sm btn-primary cursor-pointer p-1 text-xs'
                   onClick={appService?.hasUpdater ? handleCheckUpdate : handleShowRecentUpdates}
@@ -151,6 +152,15 @@ export const AboutWindow = () => {
             className='flex flex-1 flex-col items-center justify-start gap-2 px-4 text-center'
             dir='ltr'
           >
+            {isOfflineBuild() && (
+              <p className='text-neutral-content text-sm'>
+                Reverie adds on-device mood music to{' '}
+                <Link href='https://github.com/readest/readest' className='text-blue-500 underline'>
+                  Readest
+                </Link>
+                .
+              </p>
+            )}
             <p className='text-neutral-content text-sm'>
               © {new Date().getFullYear()} Bilingify LLC. All rights reserved.
             </p>
@@ -168,15 +178,22 @@ export const AboutWindow = () => {
             </p>
             <p className='text-neutral-content text-xs'>
               Source code is available at{' '}
-              <Link href='https://github.com/readest/readest' className='text-blue-500 underline'>
+              <Link
+                href={
+                  isOfflineBuild()
+                    ? 'https://github.com/muq-s1d/reverie'
+                    : 'https://github.com/readest/readest'
+                }
+                className='text-blue-500 underline'
+              >
                 GitHub
               </Link>
               .
             </p>
 
-            <LegalLinks />
+            {!isOfflineBuild() && <LegalLinks />}
           </div>
-          <SupportLinks />
+          {!isOfflineBuild() && <SupportLinks />}
         </div>
       )}
     </Dialog>

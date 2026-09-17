@@ -3,13 +3,14 @@ import { emitTo, TauriEvent } from '@tauri-apps/api/event';
 import { exit } from '@tauri-apps/plugin-process';
 import { type as osType } from '@tauri-apps/plugin-os';
 import { eventDispatcher } from './event';
+import { rebrand } from '@/reverie/offline';
 
 // Reverie: src/mood/closeGuard.ts sets this to ask before closing mid mood-analysis.
 // A global hook instead of an import keeps this file free of mood/store dependencies.
 const reverieConfirmClose = async () =>
   (globalThis as { reverieConfirmClose?: () => Promise<boolean> }).reverieConfirmClose?.() ?? true;
 
-const APP_NAME = 'Readest';
+const APP_NAME = rebrand('Readest');
 
 /**
  * The OS window title, e.g. `Readest - The Hobbit`. It is never drawn in the
