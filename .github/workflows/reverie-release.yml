@@ -35,7 +35,7 @@ jobs:
           - platform: macos
             os: macos-latest
             rust_target: aarch64-apple-darwin
-            args: '--target aarch64-apple-darwin'
+            args: '--target aarch64-apple-darwin --bundles dmg'
     name: ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
@@ -127,10 +127,14 @@ jobs:
             right-click the app and choose Open the first time.
           args: ${{ matrix.args || '' }}
 
+      # Paths can contain spaces, so read the JSON array with jq rather than
+      # splitting it in the shell.
       - name: report installer sizes
         shell: bash
+        env:
+          ARTIFACTS: ${{ steps.tauri.outputs.artifactPaths }}
         run: |
           echo "### ${{ matrix.platform }} bundle sizes" >> $GITHUB_STEP_SUMMARY
-          for p in ${{ join(fromJSON(steps.tauri.outputs.artifactPaths), ' ') }}; do
+          echo "$ARTIFACTS" | jq -r '.[]' | while read -r p; do
             [ -f "$p" ] && printf -- '- %s — %s\n' "$(basename "$p")" "$(du -h "$p" | cut -f1)" >> $GITHUB_STEP_SUMMARY
           done
