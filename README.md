@@ -63,11 +63,54 @@ Grab the latest build from the [Releases page][releases]:
 
 Intel Macs and Windows on ARM aren't built yet.
 
-**The installers aren't signed**, since certificates cost money, so your system warns you the first
-time: on Windows choose **More info → Run anyway**, and on macOS **right-click the app → Open**.
-
 Each download is 450–630 MB: the emotion model (~210 MB) and the 60 tracks (~190 MB) ship inside the
 app, which is what lets it work with no internet at all.
+
+### Linux
+
+The **AppImage** runs without installing anything:
+
+```bash
+chmod +x Reverie_0.1.0_amd64.AppImage
+./Reverie_0.1.0_amd64.AppImage
+```
+
+**Debian, Ubuntu, Mint** — install with apt so dependencies are handled:
+
+```bash
+sudo apt install ./Reverie_0.1.0_amd64.deb
+```
+
+**Fedora, RHEL, openSUSE**:
+
+```bash
+sudo dnf install ./Reverie-0.1.0-1.x86_64.rpm
+```
+
+Reverie then appears in your applications menu. To remove it later: `sudo apt remove reverie` or
+`sudo dnf remove Reverie`, or just delete the AppImage file.
+
+### Windows
+
+1. Download the `.exe` installer and run it.
+2. Windows SmartScreen will say "Windows protected your PC", because the installer isn't signed.
+   Click **More info**, then **Run anyway**.
+3. Follow the installer. Reverie lands in your Start menu.
+
+To remove it: **Settings → Apps → Installed apps → Reverie → Uninstall**.
+
+### macOS (Apple Silicon)
+
+1. Open the `.dmg` and drag **Reverie** into your Applications folder.
+2. The first time, **right-click the app → Open**, then confirm. A normal double-click is refused,
+   because the app isn't signed by an Apple developer account.
+3. If macOS says the app is damaged, clear the quarantine flag and open it again:
+
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/Reverie.app
+   ```
+
+To remove it: drag Reverie from Applications to the Bin.
 
 ## Building from source
 
