@@ -51,12 +51,71 @@ Each mood has four built-in tracks, and you can add your own.
 
 ## Download
 
-Installers for Linux, Windows and macOS are coming soon on the [Releases page][releases].
+Grab the latest build from the [Releases page][releases]:
+
+| Your system | File |
+| --- | --- |
+| Linux (most distros) | [`.AppImage`][dl-appimage] — make it executable and run it |
+| Debian / Ubuntu | [`.deb`][dl-deb] |
+| Fedora / RHEL | [`.rpm`][dl-rpm] |
+| Windows 10/11 (64-bit) | [`.exe` installer][dl-exe] |
+| macOS (Apple Silicon) | [`.dmg`][dl-dmg] |
+
+Intel Macs and Windows on ARM aren't built yet.
+
+Each download is 450–630 MB: the emotion model (~210 MB) and the 60 tracks (~190 MB) ship inside the
+app, which is what lets it work with no internet at all.
+
+### Linux
+
+The **AppImage** runs without installing anything:
+
+```bash
+chmod +x Reverie_0.1.0_amd64.AppImage
+./Reverie_0.1.0_amd64.AppImage
+```
+
+**Debian, Ubuntu, Mint** — install with apt so dependencies are handled:
+
+```bash
+sudo apt install ./Reverie_0.1.0_amd64.deb
+```
+
+**Fedora, RHEL, openSUSE**:
+
+```bash
+sudo dnf install ./Reverie-0.1.0-1.x86_64.rpm
+```
+
+Reverie then appears in your applications menu. To remove it later: `sudo apt remove reverie` or
+`sudo dnf remove Reverie`, or just delete the AppImage file.
+
+### Windows
+
+1. Download the `.exe` installer and run it.
+2. Windows SmartScreen will say "Windows protected your PC", because the installer isn't signed.
+   Click **More info**, then **Run anyway**.
+3. Follow the installer. Reverie lands in your Start menu.
+
+To remove it: **Settings → Apps → Installed apps → Reverie → Uninstall**.
+
+### macOS (Apple Silicon)
+
+1. Open the `.dmg` and drag **Reverie** into your Applications folder.
+2. The first time, **right-click the app → Open**, then confirm. A normal double-click is refused,
+   because the app isn't signed by an Apple developer account.
+3. If macOS says the app is damaged, clear the quarantine flag and open it again:
+
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/Reverie.app
+   ```
+
+To remove it: drag Reverie from Applications to the Bin.
 
 ## Building from source
 
 Reverie is a Next.js + Tauri app, so you need the same setup as Readest: Node.js, pnpm and Rust
-(see Readest's [getting started guide](CONTRIBUTING.md#getting-started) for platform requirements).
+(see [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup).
 
 ```bash
 git clone --recurse-submodules https://github.com/muq-s1d/reverie.git
@@ -101,6 +160,11 @@ Reverie is free software under the [GNU Affero General Public License v3.0](LICE
 Readest. You can use, change and share it under those terms. Readest's own licenses for the libraries and
 fonts it uses still apply; see the [Readest README](https://github.com/readest/readest#license).
 
-[releases]: https://github.com/muq-s1d/reverie/releases
+[releases]: https://github.com/muq-s1d/reverie/releases/latest
+[dl-appimage]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie_0.1.0_amd64.AppImage
+[dl-deb]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie_0.1.0_amd64.deb
+[dl-rpm]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie-0.1.0-1.x86_64.rpm
+[dl-exe]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie_0.1.0_x64-setup.exe
+[dl-dmg]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie_0.1.0_aarch64.dmg
 [model]: https://huggingface.co/monologg/bert-base-cased-goemotions-original
 [goemotions]: https://github.com/google-research/google-research/tree/master/goemotions

@@ -54,7 +54,7 @@ Neutral · Sadness · Grief/Despair · Fear · Tension/Suspense · Anger · Disg
 
 ### Phase 6 — Polish + Packaging
 - [x] Fully offline: hide online Readest features (AI, translation, accounts/cloud, integrations, online imports, telemetry, Edge TTS, online dictionaries), lock network (CSP + HTTP allow list), keep LocalSend
-- [ ] Installers: Linux (AppImage/deb), Windows, macOS
-- [ ] App size check (model + ~204MB music)
-- [ ] Rename/rebrand from Readest (name, icon, app id), keep AGPL notices
-- [ ] End-to-end test on a fresh machine, offline
+- [x] Installers: Linux (AppImage/deb/rpm), Windows (nsis), macOS (dmg) — manual GitHub Actions workflow into a draft release, unsigned
+- [x] App size check: AppImage 628 MB, deb 595 MB, rpm 557 MB, Windows exe 477 MB, macOS dmg 453 MB
+- [x] Rename/rebrand from Readest (name, wave icon, app id com.muqs1d.reverie), AGPL notices kept; README, CONTRIBUTING, SECURITY, CoC and issue templates rewritten
+- [x] End-to-end test from the .deb on a clean data dir, Wi-Fi off: EPUB + PDF analysed, music played
