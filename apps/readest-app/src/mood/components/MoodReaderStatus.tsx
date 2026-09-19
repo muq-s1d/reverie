@@ -129,6 +129,16 @@ export const MoodSidebarStatus = ({ bookKey }: { bookKey: string }) => {
   const _ = useTranslation();
   const percent = useAnalysingPercent(bookKey);
   const mood = useCurrentMood(bookKey);
+  // Without this a failed analysis looks exactly like a book that has no mood music.
+  const failed = useMoodStore((s) => s.books[hashOf(bookKey)]?.status === 'error');
+
+  if (failed) {
+    return (
+      <div className='flex items-center gap-2 pb-3 text-xs opacity-60' role='status'>
+        <span>{_('Mood music unavailable for this book')}</span>
+      </div>
+    );
+  }
 
   if (percent !== null) {
     return (
