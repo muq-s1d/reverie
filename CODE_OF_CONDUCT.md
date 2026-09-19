@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-We pledge to make the Readest community welcoming, safe, and equitable for all.
+We pledge to make the Reverie community welcoming, safe, and equitable for all.
 
 We are committed to fostering an environment that respects and promotes the dignity, rights,
 and contributions of all individuals, regardless of characteristics including race, ethnicity,
@@ -64,20 +64,18 @@ Tensions can occur between community members even when they are trying their bes
 Not every conflict represents a Code of Conduct violation, and this Code of Conduct reinforces
 encouraged behaviors and norms that can help avoid conflicts and minimize harm.
 
-To report a possible violation, email the Readest maintainers at
-[readestapp@gmail.com](mailto:readestapp@gmail.com). Do not open a public GitHub issue or discussion
-for a Code of Conduct report. Include any relevant links, screenshots, logs, or other context that
-may help us understand what happened.
+To report a possible violation privately, open a report through
+[GitHub's private reporting form for this repository](https://github.com/muq-s1d/reverie/security/advisories/new)
+and mark it as a Code of Conduct report. Only the maintainer can read it. Do not open a public issue
+or discussion for a report. Include any relevant links, screenshots, logs, or other context that may
+help in understanding what happened.
 
-Readest maintainers take reports of violations seriously and will make every effort to respond in
-a timely manner. They will investigate reports by reviewing messages, logs, and recordings, or by
-interviewing witnesses and other participants. Maintainers will keep investigations and enforcement
-actions as transparent as possible while prioritizing safety and confidentiality. Enforcement
-actions are carried out privately with the involved parties, though communicating to the wider
-community may be part of a mutually agreed resolution.
+Reverie has a single maintainer, so replies are best-effort rather than guaranteed within a fixed
+window. Reports are taken seriously: they are investigated by reviewing the messages and context
+involved, kept confidential, and handled privately with the people involved.
 
-If a report concerns a maintainer, that person will not participate in handling the report. Another
-maintainer or a mutually agreed neutral reviewer will handle it instead.
+If a report concerns the maintainer, or you would rather not contact them at all, report the
+behaviour to GitHub directly at <https://github.com/contact/report-abuse>.
 
 ## Addressing and Repairing Harm
 
@@ -88,7 +86,7 @@ rungs on the ladder may be skipped.
 
 1. **Warning**
    1. **Event:** A violation involving a single incident or series of incidents.
-   2. **Consequence:** A private, written warning from the Readest maintainers.
+   2. **Consequence:** A private, written warning from the Reverie's maintainer.
    3. **Repair:** Examples include a private written apology, acknowledgement of responsibility,
       and seeking clarification on expectations.
 2. **Temporarily Limited Activities**
@@ -101,7 +99,7 @@ rungs on the ladder may be skipped.
    3. **Repair:** Examples include making an apology, using the cooldown period to reflect on actions
       and impact, and being thoughtful about re-entering community spaces after the period is over.
 3. **Temporary Suspension**
-   1. **Event:** A pattern of repeated violations which the Readest maintainers have tried to
+   1. **Event:** A pattern of repeated violations which the Reverie's maintainer have tried to
       address with warnings, or a single serious violation.
    2. **Consequence:** A private written warning with conditions for return from suspension. In
       general, temporary suspensions give the person being suspended time to reflect upon their
@@ -111,21 +109,21 @@ rungs on the ladder may be skipped.
       the suspension is lifted.
 4. **Permanent Ban**
    1. **Event:** A pattern of repeated Code of Conduct violations that other steps on the ladder
-      have failed to resolve, or a violation so serious that the Readest maintainers determine there
+      have failed to resolve, or a violation so serious that the Reverie's maintainer determine there
       is no way to keep the community safe with this person as a member.
    2. **Consequence:** Access to all community spaces, tools, and communication channels is removed.
       Permanent bans should be used rarely, should have strong reasoning behind them, and should
       only be used if other remedies have failed to change the behavior.
    3. **Repair:** There is no possible repair in cases of this severity.
 
-This enforcement ladder is intended as a guideline. It does not limit the ability of Readest
-maintainers to use their discretion and judgment in the best interests of the community.
+This enforcement ladder is intended as a guideline. It does not limit the ability of Reverie's
+maintainer to use their discretion and judgment in the best interests of the community.
 
 ## Scope
 
-This Code of Conduct applies within all Readest community spaces, including the GitHub repository,
-GitHub Discussions, Discord, and other official communication channels. It also applies when an
-individual is officially representing Readest in public or other spaces, such as by using an
+This Code of Conduct applies within all Reverie community spaces, including the GitHub repository,
+issues, pull requests and discussions. It also applies when an individual is officially
+representing Reverie in public or other spaces, such as by using an
 official email address, posting through an official social media account, or acting as an appointed
 representative at an online or offline event.
 

@@ -1,176 +1,88 @@
-# Contribution Guidelines
+# Contributing to Reverie
 
-When contributing to `Readest`, whether on GitHub or in other community spaces:
+Thanks for taking a look. Reverie is a fork of [Readest](https://github.com/readest/readest) that adds
+an on-device mood engine and background music. Issues, ideas and pull requests are all welcome.
 
-- Follow our [Code of Conduct](CODE_OF_CONDUCT.md).
-- Be respectful, civil, and open-minded.
-- Before opening a new pull request, try searching through the [issue tracker](https://github.com/readest/readest/issues) for known issues or fixes.
-- If you want to make code changes based on your personal opinion(s), make sure you open an issue first describing the changes you want to make, and open a pull request only when your suggestions get approved by maintainers.
+By contributing you agree that your work is licensed under the
+[AGPL-3.0](LICENSE), like the rest of the project, and that you follow the
+[Code of Conduct](CODE_OF_CONDUCT.md).
 
-## How to Contribute
+## Before you start
 
-### Prerequisites
+- **Bugs and ideas:** open an issue first for anything sizeable, so we don't both build it.
+- **Bugs in the reader itself** (rendering, annotations, formats, TTS) usually belong
+  [upstream in Readest](https://github.com/readest/readest/issues); Reverie inherits those fixes.
+- **Reverie's own scope:** the mood engine, the music player, the offline build and packaging.
+- **Security issues:** don't open an issue, see [SECURITY.md](SECURITY.md).
 
-In order to not waste your time implementing a change that has already been declined, or is generally not needed, start by [opening an issue](https://github.com/readest/readest/issues/new/choose) describing the problem you would like to solve.
+## Getting set up
 
-For the best experience to build Readest for yourself, use a recent version of Node.js and Rust. Refer to the [Tauri documentation](https://v2.tauri.app/start/prerequisites/) for details on setting up the development environment prerequisites on different platforms.
-
-Basically you need to install or update the following development tools:
-
-- **Node.js** and **pnpm** for Next.js development
-- **Rust** and **Cargo** for Tauri development
-
-```bash
-nvm install v24
-nvm use v24
-npm install -g pnpm
-rustup update
-```
-
-## Getting Started
-
-To get started with Readest, follow these steps to clone and build the project.
-
-### 1. Clone the Repository
+You need Node.js 24, pnpm, and a recent Rust toolchain. Tauri also needs some system packages;
+Readest's [prerequisites](https://github.com/readest/readest/blob/main/CONTRIBUTING.md#prerequisites)
+list them per platform.
 
 ```bash
-git clone https://github.com/readest/readest.git
-cd readest
-```
-
-### 2. Install Dependencies
-
-```bash
-# might need to rerun this when code is updated
-git submodule update --init --recursive
+git clone --recurse-submodules https://github.com/muq-s1d/reverie.git
+cd reverie
 pnpm install
-# copy vendors dist libs to public directory
 pnpm --filter @readest/readest-app setup-vendors
-```
 
-To confirm that all dependencies are correctly installed, run the following command:
+# the mood model and music (~410 MB, not in git)
+sh tools/assets/fetch.sh
 
-```bash
-pnpm tauri info
-```
-
-This command will display information about the installed Tauri dependencies and configuration on your platform. Note that the output may vary depending on the operating system and environment setup. Please review the output specific to your platform for any potential issues.
-
-For Windows targets, “Build Tools for Visual Studio 2022” (or a higher edition of Visual Studio) and the “Desktop development with C++” workflow must be installed. For Windows ARM64 targets, the “VS 2022 C++ ARM64 build tools” and "C++ Clang Compiler for Windows" components must be installed. And make sure `clang` can be found in the path by adding `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\Llvm\x64\bin` for example in the environment variable `Path`.
-
-#### Using Nix
-
-If you have Nix installed, you can leverage the included flake to enter a
-development shell to install and run all the necessary dependencies and commands.
-Run these from the repository root, where `flake.nix` lives:
-
-```bash
-nix develop           # enter a dev shell for the web and desktop app
-nix develop .#android # enter a dev shell for the android app
-nix develop .#ios     # enter a dev shell for the ios app (macOS only)
-```
-
-Then, simply run:
-
-```bash
-# copy vendors dist libs to public directory
-pnpm --filter @readest/readest-app setup-vendors
-```
-
-### 4. Build for Development
-
-```bash
-# Start development for the Tauri app
+cd apps/readest-app
 pnpm tauri dev
-# or start development for the Web app
-pnpm dev-web
-# preview with OpenNext build for the Web app
-pnpm preview
 ```
 
-#### Android
+`pnpm dev-web` runs the UI in a browser without building the Rust side, which is much faster, but
+mood analysis and music need the desktop app.
 
-The following must be run once before running the Android app. Note that this is done automatically if using the nix Android devshell:
+## How the code is laid out
+
+Everything Reverie adds lives in **`apps/readest-app/src/mood/`**:
+
+| File | What it does |
+| --- | --- |
+| `moods.ts` | The 15 moods, their colours, and the emotion mapping and smoothing |
+| `analyze.ts` | Splits a book into passages, runs the model, caches the timeline |
+| `worker.ts` | The model running in a web worker |
+| `index.ts` | The queue that analyses the library in the background |
+| `position.ts` | Turns a reading position into the passage you're on |
+| `useMoodPlayer.ts`, `music.ts` | The crossfading player and track selection |
+| `components/` | The mood line, header chip, sidebar row, tour and settings panel |
+
+Two rules keep Reverie mergeable with upstream:
+
+1. **Put new code in `src/mood/` (or `src/reverie/`), not in Readest's files.**
+2. **When you must touch a Readest file, keep the change as small as possible** — ideally one import
+   and one line of JSX. `isOfflineBuild()` from `src/reverie/offline.ts` is how online features get
+   hidden, so their code stays in place for future merges.
+
+The README illustrations are generated by `tools/readme-art/render.mjs`, and the built-in music comes
+from `tools/mood-music/install.py`.
+
+## Before you open a pull request
 
 ```bash
-rm apps/readest-app/src-tauri/gen/android
-pnpm tauri android init
-pnpm tauri icon ../../data/icons/readest-book.png
-git checkout apps/readest-app/src-tauri/gen/android
+cd apps/readest-app
+pnpm lint          # Biome + TypeScript
+pnpm test          # unit tests
 ```
 
-To run the Android app:
+Run the full type check without filtering it, and run the whole test suite: Readest's tests mock
+stores and icon modules strictly, so a small change in a shared file can break tests elsewhere. If a
+test fails, try it on its own first, since a couple are flaky when the whole suite runs at once.
 
-```bash
-pnpm tauri android dev
-# or if you want to dev on a real device
-pnpm tauri android dev --host
-```
+If you changed Rust, also run `pnpm fmt:check`, `pnpm clippy:check` and `pnpm test:rust`.
 
-#### iOS
+For anything users can see, check it in the running app too, and check it still looks right in dark
+mode and in e-ink mode (Settings → Misc).
 
-```bash
-# Set up the iOS environment (run once)
-pnpm tauri ios init
-pnpm tauri icon ../../data/icons/readest-book.png
-
-pnpm tauri ios dev
-# or if you want to dev on a real device
-pnpm tauri ios dev --host
-```
-
-### 5. Build for Production
-
-```bash
-pnpm tauri build
-pnpm tauri android build
-pnpm tauri ios build
-```
-
-Please refer to our release script if you experience any issues:
-https://github.com/readest/readest/blob/main/.github/workflows/release.yml
-
-
-### 7. More information
-
-Please check the [wiki][link-gh-wiki] of this project for more information on development.
-
-Now you're all setup and can start implementing your changes.
-
-## Implement your changes
-
-This project is a monorepo. The code for the `readest-app` is in the `apps/readest-app` directory. Here are some useful scripts for developing the frontend only without compiling Tauri:
-
-| Command          | Description                                        |
-| ---------------- | -------------------------------------------------- |
-| `pnpm dev-web`   | Starts the development server for the web app only |
-| `pnpm build-web` | Builds the web app                                 |
-
-### Editor-specific setup
-
-#### VS Code
-
-Upon opening the project, you will be prompted to install the following recommended extensions:
-
-- JavaScript and TypeScript Nightly (`ms-vscode.vscode-typescript-next`)
-- VS Code ESLint extension (`dbaeumer.vscode-eslint`)
-- Biome - Code formatter and linter (`biomejs.biome`)
-- rust-analyzer (`rust-lang.rust-analyzer`) (for Tauri development only)
-
-#### Zed
-
-The only extension needed is [biome-zed](https://github.com/biomejs/biome-zed), for code formatting and linting.
-
-### When you're done
-
-Check that your code follows the project's style guidelines by running:
-
-```bash
-pnpm build
-```
-
-Please also make a manual, functional test of your changes. When all that's done, it's time to file a pull request to upstream and fill out the title and body appropriately.
+Then open a PR that says what changed and how you tested it. Small, focused PRs get merged faster.
 
 ## Credits
 
-This documented was inspired by the contributing guidelines for [cloudflare/wrangler2](https://github.com/cloudflare/wrangler2/blob/main/CONTRIBUTING.md).
+Reverie stands on [Readest](https://github.com/readest/readest) by Bilingify LLC, which in turn builds
+on [foliate-js](https://github.com/johnfactotum/foliate-js). The mood model is
+[`monologg/bert-base-cased-goemotions-original`](https://huggingface.co/monologg/bert-base-cased-goemotions-original),
+and the built-in music is by Scott Buckley and Kevin MacLeod under CC-BY 4.0.

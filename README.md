@@ -56,7 +56,7 @@ Installers for Linux, Windows and macOS are coming soon on the [Releases page][r
 ## Building from source
 
 Reverie is a Next.js + Tauri app, so you need the same setup as Readest: Node.js, pnpm and Rust
-(see Readest's [getting started guide](CONTRIBUTING.md#getting-started) for platform requirements).
+(see [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup).
 
 ```bash
 git clone --recurse-submodules https://github.com/muq-s1d/reverie.git

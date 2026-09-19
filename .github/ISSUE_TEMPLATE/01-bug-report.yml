@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         <p align="center">
-          <img src="https://github.com/readest/readest/blob/main/apps/readest-app/src-tauri/icons/icon.png?raw=true" alt="Readest Logo" width="20%" />
+          <img src="https://github.com/muq-s1d/reverie/blob/main/apps/readest-app/src-tauri/icons/icon.png?raw=true" alt="Reverie icon" width="12%" />
         </p>
 
         Please replace the **`BUG DESCRPTION`** template above with a clear and concise description of what the current behvaior is.
@@ -58,12 +58,9 @@ body:
       description: "Select the operating system(s) that this bug occurs on."
       multiple: true
       options:
-        - "macOS"
-        - "Windows"
         - "Linux"
-        - "iOS/iPadOS"
-        - "Android"
-        - "Web"
+        - "Windows"
+        - "macOS"
     validations:
       required: true
   - type: "input"
@@ -76,13 +73,13 @@ body:
     validations:
       required: true
   - type: "input"
-    id: "readest_version"
+    id: "reverie_version"
     attributes:
-      label: "Readest Version"
+      label: "Reverie Version"
       description: |
-        The Readest version you are running.
+        The Reverie version you are running.
 
-        To find this, go to **☰ -> About Readest**.
+        To find this, go to **☰ -> About Reverie**.
       placeholder: "Version x.xx.xx (WebView xxx.x.xx)"
     validations:
       required: true
