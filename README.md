@@ -10,6 +10,10 @@ Everything runs on your computer: no account, no server, no internet needed.
 [![Platforms](https://img.shields.io/badge/platforms-Linux%20%C2%B7%20Windows%20%C2%B7%20macOS-5b7fa6?style=flat-square)](#download)
 [![AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-6366f1?style=flat-square)](LICENSE)
 
+![Reverie: reading turns into music](.github/readme/demo.gif)
+
+<sub>[Download the 30 second video with sound](https://github.com/muq-s1d/reverie/raw/main/.github/readme/demo.mp4).</sub>
+
 </div>
 
 Reverie is built on [Readest](https://github.com/readest/readest), an open-source ebook reader. It adds a
