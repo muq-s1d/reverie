@@ -51,7 +51,23 @@ Each mood has four built-in tracks, and you can add your own.
 
 ## Download
 
-Installers for Linux, Windows and macOS are coming soon on the [Releases page][releases].
+Grab the latest build from the [Releases page][releases]:
+
+| Your system | File |
+| --- | --- |
+| Linux (most distros) | [`.AppImage`][dl-appimage] — make it executable and run it |
+| Debian / Ubuntu | [`.deb`][dl-deb] |
+| Fedora / RHEL | [`.rpm`][dl-rpm] |
+| Windows 10/11 (64-bit) | [`.exe` installer][dl-exe] |
+| macOS (Apple Silicon) | [`.dmg`][dl-dmg] |
+
+Intel Macs and Windows on ARM aren't built yet.
+
+**The installers aren't signed**, since certificates cost money, so your system warns you the first
+time: on Windows choose **More info → Run anyway**, and on macOS **right-click the app → Open**.
+
+Each download is 450–630 MB: the emotion model (~210 MB) and the 60 tracks (~190 MB) ship inside the
+app, which is what lets it work with no internet at all.
 
 ## Building from source
 
@@ -101,6 +117,11 @@ Reverie is free software under the [GNU Affero General Public License v3.0](LICE
 Readest. You can use, change and share it under those terms. Readest's own licenses for the libraries and
 fonts it uses still apply; see the [Readest README](https://github.com/readest/readest#license).
 
-[releases]: https://github.com/muq-s1d/reverie/releases
+[releases]: https://github.com/muq-s1d/reverie/releases/latest
+[dl-appimage]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie_0.1.0_amd64.AppImage
+[dl-deb]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie_0.1.0_amd64.deb
+[dl-rpm]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie-0.1.0-1.x86_64.rpm
+[dl-exe]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie_0.1.0_x64-setup.exe
+[dl-dmg]: https://github.com/muq-s1d/reverie/releases/latest/download/Reverie_0.1.0_aarch64.dmg
 [model]: https://huggingface.co/monologg/bert-base-cased-goemotions-original
 [goemotions]: https://github.com/google-research/google-research/tree/master/goemotions
