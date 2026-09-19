@@ -136,5 +136,8 @@ jobs:
         run: |
           echo "### ${{ matrix.platform }} bundle sizes" >> $GITHUB_STEP_SUMMARY
           echo "$ARTIFACTS" | jq -r '.[]' | while read -r p; do
+            # Git Bash on Windows gets a D:\... path, which it cannot stat.
+            p=$(cygpath -u "$p" 2>/dev/null || echo "$p")
             [ -f "$p" ] && printf -- '- %s — %s\n' "$(basename "$p")" "$(du -h "$p" | cut -f1)" >> $GITHUB_STEP_SUMMARY
           done
+          exit 0

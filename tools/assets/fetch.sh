@@ -45,8 +45,10 @@ fi
 # The runtime comes from node_modules, not the release: it must match the installed transformers.js.
 mkdir -p "$pub/mood-model/ort"
 ort=$(cd "$app" && node -p "require('path').dirname(require.resolve('onnxruntime-web', { paths: [require.resolve('@huggingface/transformers')] }))")
-cp "$ort"/ort-wasm-simd-threaded.wasm "$ort"/ort-wasm-simd-threaded.mjs \
-   "$ort"/ort-wasm-simd-threaded.jsep.wasm "$ort"/ort-wasm-simd-threaded.jsep.mjs "$pub/mood-model/ort/"
+# All four variants: onnxruntime-web picks between them at run time (it asks for the
+# asyncify build on the CEF runtime), and a missing one kills the worker with
+# "no available backend found".
+cp "$ort"/ort-wasm-simd-threaded.* "$pub/mood-model/ort/"
 printf '*\n!.gitignore\n' > "$pub/mood-model/.gitignore"
 
 if [ -d "$pub/music/joy" ]; then
