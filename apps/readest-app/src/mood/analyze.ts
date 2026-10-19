@@ -53,26 +53,46 @@ const readJSON = async <T>(path: string): Promise<T | null> => {
   }
 };
 
-const classify = (texts: string[], onMood: (mood: Mood) => void) =>
+// No word from the model for this long means it's stuck (e.g. it never loaded): fail the book
+// instead of showing "analysing" forever, which also kept the close dialog coming back.
+const STALL_MS = 3 * 60 * 1000;
+
+const classify = (texts: string[], onMood: (mood: Mood) => void, signal: AbortSignal) =>
   new Promise<void>((resolve, reject) => {
     const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
+    let stall: ReturnType<typeof setTimeout> | undefined;
+    const stop = (err?: Error) => {
+      clearTimeout(stall);
+      signal.removeEventListener('abort', onAbort);
+      worker.onmessage = worker.onerror = null; // ignore anything already in flight
+      worker.terminate(); // frees the model's memory
+      if (err) reject(err);
+      else resolve();
+    };
+    const onAbort = () => stop(new Error('Mood analysis stopped'));
+    const alive = () => {
+      clearTimeout(stall);
+      stall = setTimeout(() => stop(new Error('Mood model stopped responding')), STALL_MS);
+    };
+    if (signal.aborted) return onAbort();
+    signal.addEventListener('abort', onAbort);
+    alive();
     worker.onmessage = ({ data }: MessageEvent<MoodWorkerResponse>) => {
-      if (data.type === 'mood') return onMood(data.mood);
-      worker.terminate(); // frees the model's memory once the book is done
-      if (data.type === 'done') resolve();
-      else reject(new Error(data.message));
+      if (data.type === 'mood') {
+        alive();
+        return onMood(data.mood);
+      }
+      stop(data.type === 'done' ? undefined : new Error(data.message));
     };
-    worker.onerror = (e) => {
-      worker.terminate();
-      reject(new Error(e.message));
-    };
+    worker.onerror = (e) => stop(new Error(e.message || 'Mood model failed to start'));
     worker.postMessage({ texts } satisfies MoodWorkerRequest);
   });
 
-export const analyzeBook = async (book: Book, bookDoc: BookDoc) => {
+export const analyzeBook = async (book: Book, bookDoc: BookDoc, signal: AbortSignal) => {
   setMoodState(book.hash, { status: 'analysing', done: 0, total: 0 });
   const chunks = [];
   for (const [i, section] of bookDoc.sections.entries()) {
+    signal.throwIfAborted(); // a big PDF takes a while to chunk
     try {
       chunks.push(...chunkSection(await section.createDocument(), i, '', book.hash, CHUNK_OPTIONS));
     } catch (err) {
@@ -104,7 +124,12 @@ export const analyzeBook = async (book: Book, bookDoc: BookDoc) => {
           checkpoint().catch((err) => console.warn('[mood] checkpoint failed', err));
         }
       },
-    );
+      signal,
+    ).catch(async (err) => {
+      // Stopped or failed: keep what's done so the next try resumes here.
+      await checkpoint().catch(() => {});
+      throw err;
+    });
     const smoothed = smoothMoods(moods);
     timeline = {
       version: TIMELINE_VERSION,

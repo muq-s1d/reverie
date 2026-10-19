@@ -7,15 +7,19 @@ import environmentConfig from '@/services/environment';
 import { useMoodStore } from './store';
 
 type ReverieGlobal = {
-  reverieConfirmClose?: () => Promise<boolean>;
+  reverieConfirmClose?: (stopsAnalysis: boolean) => Promise<boolean>;
   reverieCloseGuardRegistered?: boolean;
 };
 const g = globalThis as ReverieGlobal;
 
 let asking: Promise<boolean> | null = null;
 
-/** True when it's fine to close. Shared by every close path so the dialog shows once. */
-export const confirmCloseDuringAnalysis = async (): Promise<boolean> => {
+/**
+ * True when it's fine to close. Shared by every close path so the dialog shows once.
+ * `stopsAnalysis`: false for a book window, since only the main window analyses (see index.ts).
+ */
+export const confirmCloseDuringAnalysis = async (stopsAnalysis = true): Promise<boolean> => {
+  if (!stopsAnalysis) return true;
   const analysing = Object.values(useMoodStore.getState().books).find(
     (s) => s.status === 'analysing',
   );
