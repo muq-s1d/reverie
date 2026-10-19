@@ -7,8 +7,11 @@ import { rebrand } from '@/reverie/offline';
 
 // Reverie: src/mood/closeGuard.ts sets this to ask before closing mid mood-analysis.
 // A global hook instead of an import keeps this file free of mood/store dependencies.
-const reverieConfirmClose = async () =>
-  (globalThis as { reverieConfirmClose?: () => Promise<boolean> }).reverieConfirmClose?.() ?? true;
+// Only closing the main window (or quitting) stops the analysis, so book windows close freely.
+const reverieConfirmClose = async (stopsAnalysis: boolean) =>
+  (
+    globalThis as { reverieConfirmClose?: (stopsAnalysis: boolean) => Promise<boolean> }
+  ).reverieConfirmClose?.(stopsAnalysis) ?? true;
 
 const APP_NAME = rebrand('Readest');
 
@@ -103,7 +106,7 @@ export const tauriHandleOnCloseWindow = async (callback: () => void) => {
     if (currentWindow.label === 'main' && (await osType()) === 'macos') {
       return;
     }
-    if (!(await reverieConfirmClose())) return;
+    if (!(await reverieConfirmClose(currentWindow.label === 'main'))) return;
     await callback();
     if (currentWindow.label.startsWith('reader')) {
       await emitTo('main', 'close-reader-window', { label: currentWindow.label });
@@ -172,7 +175,7 @@ export const tauriHandleOnWindowFocus = async (callback: () => void) => {
 };
 
 export const tauriQuitApp = async () => {
-  if (!(await reverieConfirmClose())) return;
+  if (!(await reverieConfirmClose(true))) return;
   await eventDispatcher.dispatch('quit-app');
   await exit(0);
 };
